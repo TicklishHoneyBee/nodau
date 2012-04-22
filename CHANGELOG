@@ -1,0 +1,22 @@
+CHANGES:
+0.1
+	- initial release
+0.2
+	- added 'show' option, to display a note without editing
+	- changed 'open' option to 'edit' to differentiate it from
+	 'show', 'open' has been left for backward compatibility
+0.2.1
+	- added man page thanks to Salvatore Bonaccorso
+	 <carnil <at> debian.org>
+0.2.2
+	- patch to build/Makefile to fix bug when building on ubuntu provided
+	 by Angel Abad
+	 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=627306
+	 https://bugs.launchpad.net/ubuntu/+source/nodau/+bug/785135
+0.2.3
+	- patches to Makefiles to improve build portability provided by Mats
+	 Andersson <bsd <at> gisladisker.se>
+0.3
+	- use an external editor for editting using the EDITOR
+	 environment variable
+	- rewritten Makefiles
