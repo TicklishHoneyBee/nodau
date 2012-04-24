@@ -192,7 +192,8 @@ static int db_insert(char* name, char* value)
 int db_update(char* name, char* value)
 {
 	char sql[512];
-	/* create the sql statement using the name/text for this note */
+	/* create the sql statement using the name/text for this note
+	 * if it's meant to be encrypted, then crypt_key will be set */
 	if (crypt_key) {
 		value = note_encrypt(value,crypt_key);
 		sprintf(sql, "UPDATE nodau set text='%s' , encrypted='true' WHERE name='%s'", value, name);
@@ -285,6 +286,7 @@ void db_edit(char* search)
 	text = result->data[COLUMN(0,COL_TEXT)];
 	crypt = result->data[COLUMN(0,COL_CRYPT)];
 
+	/* get the passphrase if it's encrypted */
 	if (!strcmp(crypt,"true")) {
 		crypt = crypt_get_key();
 		text = note_decrypt(text,crypt);
@@ -321,9 +323,9 @@ void db_show(char* search)
 	text = result->data[COLUMN(0,COL_TEXT)];
 	crypt = result->data[COLUMN(0,COL_CRYPT)];
 
+	/* get the passphrase if it's encrypted */
 	if (!strcmp(crypt,"true")) {
 		crypt = crypt_get_key();
-		printf("'%s' '%s'\n",text,crypt);
 		text = note_decrypt(text,crypt);
 	}
 
@@ -405,7 +407,7 @@ void db_encrypt(char* search)
 	sql_result *result;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
 
-	/* there's already a note with that name, so error and return */
+	/* there's already a note with that name */
 	if (result->num_rows) {
 		char* date;
 		char* name;
@@ -418,6 +420,7 @@ void db_encrypt(char* search)
 		text = result->data[COLUMN(0,COL_TEXT)];
 		crypt = result->data[COLUMN(0,COL_CRYPT)];
 
+		/* encrypt it if it's not already */
 		if (!strcmp(crypt,"false")) {
 			crypt = crypt_get_key();
 			db_result_free(result);
@@ -450,7 +453,7 @@ void db_decrypt(char* search)
 	sql_result *result;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
 
-	/* there's already a note with that name, so error and return */
+	/* found the note */
 	if (result->num_rows) {
 		char* date;
 		char* name;
@@ -463,6 +466,7 @@ void db_decrypt(char* search)
 		text = result->data[COLUMN(0,COL_TEXT)];
 		crypt = result->data[COLUMN(0,COL_CRYPT)];
 
+		/* decrypt it if it is encrypted */
 		if (!strcmp(crypt,"true")) {
 			char* t;
 			crypt = crypt_get_key();
