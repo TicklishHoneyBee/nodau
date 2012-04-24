@@ -64,7 +64,7 @@ static unsigned int db_getstamp(char* d)
 /* create the nodau table if it doesn't exist */
 static int db_check()
 {
-	sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS nodau(name VARCHAR(10), date INTEGER UNSIGNED, text VARCHAR(255), encrypted BOOLEAN DEFAULT 'false')", NULL, 0, &error_msg);
+	sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS nodau(name VARCHAR(255), date INTEGER UNSIGNED, text TEXT, encrypted BOOLEAN DEFAULT 'false')", NULL, 0, &error_msg);
 
 	return 0;
 }
@@ -176,13 +176,13 @@ static sql_result *db_get(char* sql,...)
 static int db_insert(char* name, char* value)
 {
 	/* somewhere to put the sql */
-	char sql[512];
+	char sql[1024];
 
 	/* get the current time */
 	unsigned int date = (unsigned int)time(NULL);
 
 	/* create the sql statement using the name/date/text for this note */
-	sprintf(sql, "INSERT INTO nodau values('%s','%u','%s', 'false')", name, date, value);
+	sprintf(sql, "INSERT INTO nodau values('%s','%u','%s','false')", name, date, value);
 
 	/* do it */
 	return sqlite3_exec(db, sql, NULL, 0, &error_msg);
@@ -191,9 +191,14 @@ static int db_insert(char* name, char* value)
 /* update an existing note */
 int db_update(char* name, char* value)
 {
-	/* create the sql statement using the name/text for this note */
 	char sql[512];
-	sprintf(sql, "UPDATE nodau set text='%s' WHERE name='%s'", value, name);
+	/* create the sql statement using the name/text for this note */
+	if (crypt_key) {
+		value = note_encrypt(value,crypt_key);
+		sprintf(sql, "UPDATE nodau set text='%s' , encrypted='true' WHERE name='%s'", value, name);
+	}else{
+		sprintf(sql, "UPDATE nodau set text='%s' , encrypted='false' WHERE name='%s'", value, name);
+	}
 
 	/* do it */
 	return sqlite3_exec(db, sql, NULL, 0, &error_msg);
@@ -261,34 +266,8 @@ void db_edit(char* search)
 {
 	char* date;
 	char* name;
-	/* get the note by name */
-	sql_result *result;
-	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
-
-	/* nothing there */
-	if (result->num_rows == 0) {
-		printf("No notes match '%s'\n",search);
-		db_result_free(result);
-		return;
-	}
-
-	/* get the data */
-	date = db_gettime(result->data[COLUMN(0,COL_DATE)]);
-	name = result->data[COLUMN(0,COL_NAME)];
-
-	/* edit the note */
-	edit(name, date, result->data[COLUMN(0,COL_TEXT)]);
-
-	/* free the result */
-	db_result_free(result);
-}
-
-/* show an existing note */
-void db_show(char* search)
-{
-	char* date;
-	char* name;
 	char* text;
+	char* crypt;
 	/* get the note by name */
 	sql_result *result;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
@@ -304,6 +283,49 @@ void db_show(char* search)
 	date = db_gettime(result->data[COLUMN(0,COL_DATE)]);
 	name = result->data[COLUMN(0,COL_NAME)];
 	text = result->data[COLUMN(0,COL_TEXT)];
+	crypt = result->data[COLUMN(0,COL_CRYPT)];
+
+	if (!strcmp(crypt,"true")) {
+		crypt = crypt_get_key();
+		text = note_decrypt(text,crypt);
+	}
+
+	/* edit the note */
+	edit(name, date, text);
+
+	/* free the result */
+	db_result_free(result);
+}
+
+/* show an existing note */
+void db_show(char* search)
+{
+	char* date;
+	char* name;
+	char* text;
+	char* crypt;
+	/* get the note by name */
+	sql_result *result;
+	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
+
+	/* nothing there */
+	if (result->num_rows == 0) {
+		printf("No notes match '%s'\n",search);
+		db_result_free(result);
+		return;
+	}
+
+	/* get the data */
+	date = db_gettime(result->data[COLUMN(0,COL_DATE)]);
+	name = result->data[COLUMN(0,COL_NAME)];
+	text = result->data[COLUMN(0,COL_TEXT)];
+	crypt = result->data[COLUMN(0,COL_CRYPT)];
+
+	if (!strcmp(crypt,"true")) {
+		crypt = crypt_get_key();
+		printf("'%s' '%s'\n",text,crypt);
+		text = note_decrypt(text,crypt);
+	}
 
 	/* display the note */
 	printf("%s (%s):\n%s\n",name,date,text);
@@ -374,4 +396,88 @@ void db_new(char* search)
 
 	/* open for editing */
 	db_edit(search);
+}
+
+/* encrypt an existing note, or create a new encrypted note */
+void db_encrypt(char* search)
+{
+	/* search by name */
+	sql_result *result;
+	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
+
+	/* there's already a note with that name, so error and return */
+	if (result->num_rows) {
+		char* date;
+		char* name;
+		char* text;
+		char* crypt;
+
+		/* get the data */
+		date = db_gettime(result->data[COLUMN(0,COL_DATE)]);
+		name = result->data[COLUMN(0,COL_NAME)];
+		text = result->data[COLUMN(0,COL_TEXT)];
+		crypt = result->data[COLUMN(0,COL_CRYPT)];
+
+		if (!strcmp(crypt,"false")) {
+			crypt = crypt_get_key();
+			db_result_free(result);
+			db_update(search,text);
+		}else{
+			printf("Note '%s' is already encrypted\n",search);
+			db_result_free(result);
+		}
+		return;
+	}
+
+	/* free the search result */
+	db_result_free(result);
+
+	/* create the new entry */
+	db_insert(search,"new entry");
+
+	if (error_msg)
+		printf("%s\n",error_msg);
+
+	/* open for editing */
+	db_edit(search);
+}
+
+
+/* decrypt an existing note or create a new encrypted note */
+void db_decrypt(char* search)
+{
+	/* search by name */
+	sql_result *result;
+	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
+
+	/* there's already a note with that name, so error and return */
+	if (result->num_rows) {
+		char* date;
+		char* name;
+		char* text;
+		char* crypt;
+
+		/* get the data */
+		date = db_gettime(result->data[COLUMN(0,COL_DATE)]);
+		name = result->data[COLUMN(0,COL_NAME)];
+		text = result->data[COLUMN(0,COL_TEXT)];
+		crypt = result->data[COLUMN(0,COL_CRYPT)];
+
+		if (!strcmp(crypt,"true")) {
+			char* t;
+			crypt = crypt_get_key();
+			t = note_decrypt(text,crypt);
+			free(crypt_key);
+			crypt_key = NULL;
+			db_update(search,t);
+			db_result_free(result);
+		}else{
+			printf("Note '%s' is not encrypted\n",search);
+			db_result_free(result);
+		}
+		return;
+	}
+
+	printf("No notes matches '%s'\n",search);
+	db_result_free(result);
 }

@@ -126,6 +126,12 @@ int main(int argc, char** argv)
 		/* if opening/editing an existing note */
 		}else if (strcmp(argv[1],"open") == 0 || strcmp(argv[1],"edit") == 0) {
 			db_edit(args);
+		/* encrypt a new or existing note */
+		}else if (strcmp(argv[1],"encrypt") == 0) {
+			db_encrypt(args);
+		/* decrypt an existing note */
+		}else if (strcmp(argv[1],"decrypt") == 0) {
+			db_decrypt(args);
 		/* display an existing note */
 		}else if (strcmp(argv[1],"show") == 0) {
 			db_show(args);

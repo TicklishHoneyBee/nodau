@@ -1,23 +1,33 @@
 #ifndef _NODAU_H
-#define _NODAU_H
+#define _NODAU_H 1
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* mmm unix */
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <libgen.h>
 #include <errno.h>
 #include <limits.h>
+
+/* openssl */
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
+#include <openssl/des.h>
+
+/* database */
 #include <sqlite3.h>
 
 /* for accessing old database */
-#define OROW(x) ((x+1)*3)
-#define OCOLUMN(x,y) (OROW(x)+y)
+#define OROW(__row) ((__row+1)*3)
+#define OCOLUMN(__row,__col) (OROW(__row)+__col)
 /* and the new one */
-#define ROW(x) ((x+1)*4)
-#define COLUMN(x,y) (ROW(x)+y)
+#define ROW(__row) ((__row+1)*4)
+#define COLUMN(__row,__col) (ROW(__row)+__col)
 
 typedef struct {
 	int num_rows;
@@ -28,7 +38,8 @@ typedef struct {
 enum {
 	COL_NAME,
 	COL_DATE,
-	COL_TEXT
+	COL_TEXT,
+	COL_CRYPT
 };
 
 sqlite3 *db;
@@ -42,6 +53,8 @@ void db_edit(char* search);
 void db_show(char* search);
 void db_del(char* search);
 void db_new(char* search);
+void db_encrypt(char* search);
+void db_decrypt(char* search);
 sql_result *db_result_alloc(void);
 int db_result_free(sql_result *result);
 
@@ -54,5 +67,11 @@ int dir_create(char* p);
 
 /* defined in edit.c */
 void edit(char* name, char* date, char* data);
+
+/* defined in crypto.c */
+extern char* crypt_key;
+char* crypt_get_key(void);
+char* note_encrypt(char* data, char* key);
+char* note_decrypt(char* data, char* key);
 
 #endif

@@ -1,7 +1,7 @@
 CC ?= gcc
 
 CFLAGS ?= -Wall -g -pedantic
-CLIBS ?= -lsqlite3 -lncurses
+CLIBS ?= -lsqlite3 -lncurses -lcrypto
 
 PREFIX ?= /usr
 BINDIR ?= $(PREFIX)/bin
@@ -12,7 +12,7 @@ SRCDIR=src
 TARGET=nodau
 VERSION=0.3
 
-OBJS=$(SRCDIR)/nodau.o $(SRCDIR)/db.o $(SRCDIR)/lib.o $(SRCDIR)/edit.o
+OBJS=$(SRCDIR)/nodau.o $(SRCDIR)/db.o $(SRCDIR)/lib.o $(SRCDIR)/edit.o $(SRCDIR)/crypto.o
 DISTFILES=man $(SRCDIR) Makefile* CHANGELOG LICENSE README
 
 all: default
