@@ -4,10 +4,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <libgen.h>
+#include <errno.h>
 #include <limits.h>
 #include <sqlite3.h>
 
-#define ROW(x) ((x+1)*3)
+/* for accessing old database */
+#define OROW(x) ((x+1)*3)
+#define OCOLUMN(x,y) (OROW(x)+y)
+/* and the new one */
+#define ROW(x) ((x+1)*4)
 #define COLUMN(x,y) (ROW(x)+y)
 
 typedef struct {
@@ -41,6 +50,7 @@ unsigned int gettime(char* str);
 
 /* defined in lib.c */
 void create_datemask(void);
+int dir_create(char* p);
 
 /* defined in edit.c */
 void edit(char* name, char* date, char* data);

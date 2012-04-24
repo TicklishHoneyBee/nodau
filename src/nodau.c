@@ -82,10 +82,10 @@ static char* get_args(int argc, char** argv)
 	}
 
 	/* set up for joining */
-	args[0] = 0;
+	strcpy(args,argv[2]);
 
 	/* join the arguments */
-	for (i=2; i<argc; i++) {
+	for (i=3; i<argc; i++) {
 		strcat(args," ");
 		strcat(args,argv[i]);
 	}

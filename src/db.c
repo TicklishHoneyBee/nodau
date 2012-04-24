@@ -64,7 +64,7 @@ static unsigned int db_getstamp(char* d)
 /* create the nodau table if it doesn't exist */
 static int db_check()
 {
-	sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS nodau(name VARCHAR(10), date INTEGER UNSIGNED, text VARCHAR(255))", NULL, 0, &error_msg);
+	sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS nodau(name VARCHAR(10), date INTEGER UNSIGNED, text VARCHAR(255), encrypted BOOLEAN DEFAULT 'false')", NULL, 0, &error_msg);
 
 	return 0;
 }
@@ -74,15 +74,28 @@ int db_connect()
 {
 	int c;
 	char* f;
+	char* xdh;
 	char fl[PATH_MAX];
 	error_msg = NULL;
 
-	/* get the file */
 	f = getenv("HOME");
-	sprintf(fl,"%s/.nodau",f);
+	xdh = getenv("XDG_DATA_HOME");
+
+	/* use XDG data directory for storing the database */
+	if (!xdh || !xdh[0]) {
+		sprintf(fl,"%s/.local/share/nodau",f);
+	}else{
+		sprintf(fl,"%s/nodau",xdh);
+	}
+
+	dir_create(fl);
+
+	strcat(fl,"/nodau.db");
 
 	/* connect */
 	c = sqlite3_open_v2(fl, &db, SQLITE_OPEN_READWRITE  | SQLITE_OPEN_CREATE, NULL);
+
+	/* TODO: import from old database file */
 
 	/* check for an error */
 	if (c)
@@ -96,7 +109,7 @@ int db_connect()
 sql_result *db_result_alloc()
 {
 	/* malloc space */
-	sql_result *res = (sql_result*)malloc(sizeof(sql_result));
+	sql_result *res = malloc(sizeof(sql_result));
 
 	/* null means error and return */
 	if (res == NULL) {
@@ -166,10 +179,10 @@ static int db_insert(char* name, char* value)
 	char sql[512];
 
 	/* get the current time */
-	unsigned int date = (int)time(NULL);
+	unsigned int date = (unsigned int)time(NULL);
 
 	/* create the sql statement using the name/date/text for this note */
-	sprintf(sql, "INSERT INTO nodau values('%s','%u','%s')", name, date, value);
+	sprintf(sql, "INSERT INTO nodau values('%s','%u','%s', 'false')", name, date, value);
 
 	/* do it */
 	return sqlite3_exec(db, sql, NULL, 0, &error_msg);
@@ -355,6 +368,9 @@ void db_new(char* search)
 
 	/* create the new entry */
 	db_insert(search,"new entry");
+
+	if (error_msg)
+		printf("%s\n",error_msg);
 
 	/* open for editing */
 	db_edit(search);

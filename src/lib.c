@@ -73,3 +73,47 @@ void create_datemask()
 	/* set the DATEMSK environment variable */
 	setenv("DATEMSK",dmfn,1);
 }
+
+int dir_create(char* p)
+{
+	mode_t process_mask = umask(0);
+	mode_t mode = S_IRWXU | S_IRWXG | S_IRWXO;
+        char *q, *r = NULL, *path = NULL, *up = NULL;
+        int ret = 1;
+        if (!strcmp(p, ".") || !strcmp(p, "/")) {
+		umask(process_mask);
+		return 0;
+	}
+
+        if ((path = strdup(p)) == NULL)
+                goto fail;
+
+        if ((q = strdup(p)) == NULL)
+                goto fail;
+
+        if ((r = dirname(q)) == NULL)
+                goto out;
+
+        if ((up = strdup(r)) == NULL)
+               goto fail;
+
+        if ((dir_create(up) == -1) && (errno != EEXIST))
+                goto out;
+
+        if ((mkdir(path, mode) == -1) && (errno != EEXIST))
+                ret = 1;
+        else
+                ret = 0;
+
+out:
+	umask(process_mask);
+        if (up != NULL)
+                free(up);
+        free(q);
+        free(path);
+        return ret;
+
+fail:
+	umask(process_mask);
+	return 1;
+}
