@@ -31,7 +31,7 @@ OPTIONS:
  decrypt <name>  decrypt an encrypted note
  edit <name>     open an existing note for editing
  show <name>     display an existing note
- del <search>    accepts name or search term
+ del <search>    delete a note/notes, accepts name or search term
 
 CONFIG:
 The nodau config file is located at $XDG_CONFIG_HOME/nodau/nodau.conf
