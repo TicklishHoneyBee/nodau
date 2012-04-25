@@ -28,6 +28,8 @@ static void print_help(char* appname)
 	   " help            print this message\n"
 	   " list [search]   list notes, accepts optional search term\n"
 	   " new <name>      create new note, name must be unique\n"
+	   " encrypt <name>  encrypt a new or existing note\n"
+	   " decrypt <name>  decrypt an encrypted note\n"
 	   " edit <name>     open an existing note for editing\n"
 	   " show <name>     display an existing note\n"
 	   " del <search>    accepts name or search term\n");
@@ -103,6 +105,8 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	config_load();
+
 	/* connect to the db or error */
 	if (db_connect()) {
 		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
@@ -150,6 +154,9 @@ int main(int argc, char** argv)
 
 	/* close the database */
 	sqlite3_close(db);
+
+	/* save config */
+	config_save();
 
 	return 0;
 }

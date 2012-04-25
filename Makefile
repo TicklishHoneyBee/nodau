@@ -12,7 +12,7 @@ SRCDIR=src
 TARGET=nodau
 VERSION=0.3
 
-OBJS=$(SRCDIR)/nodau.o $(SRCDIR)/db.o $(SRCDIR)/lib.o $(SRCDIR)/edit.o $(SRCDIR)/crypto.o
+OBJS=$(SRCDIR)/nodau.o $(SRCDIR)/db.o $(SRCDIR)/lib.o $(SRCDIR)/edit.o $(SRCDIR)/crypto.o $(SRCDIR)/config.o
 DISTFILES=man $(SRCDIR) Makefile* CHANGELOG LICENSE README
 
 all: default

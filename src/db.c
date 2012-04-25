@@ -69,82 +69,6 @@ static int db_check()
 	return 0;
 }
 
-/* connect to the database */
-int db_connect()
-{
-	int c;
-	char* f;
-	char* xdh;
-	char fl[PATH_MAX];
-	error_msg = NULL;
-
-	f = getenv("HOME");
-	xdh = getenv("XDG_DATA_HOME");
-
-	/* use XDG data directory for storing the database */
-	if (!xdh || !xdh[0]) {
-		sprintf(fl,"%s/.local/share/nodau",f);
-	}else{
-		sprintf(fl,"%s/nodau",xdh);
-	}
-
-	dir_create(fl);
-
-	strcat(fl,"/nodau.db");
-
-	/* connect */
-	c = sqlite3_open_v2(fl, &db, SQLITE_OPEN_READWRITE  | SQLITE_OPEN_CREATE, NULL);
-
-	/* TODO: import from old database file */
-
-	/* check for an error */
-	if (c)
-		return 1;
-
-	/* check the table exists and return */
-	return db_check();
-}
-
-/* create a result struct */
-sql_result *db_result_alloc()
-{
-	/* malloc space */
-	sql_result *res = malloc(sizeof(sql_result));
-
-	/* null means error and return */
-	if (res == NULL) {
-		fprintf(stderr,"allocation failure\n");
-		return NULL;
-	}
-
-	/* set some default values */
-	res->num_cols = 0;
-	res->num_rows = 0;
-	res->data = NULL;
-
-	/* return the struct */
-	return res;
-}
-
-/* free a result struct */
-int db_result_free(sql_result *result)
-{
-	/* if null do nothing */
-	if (result == NULL)
-		return 1;
-
-	/* if there's data free it */
-	if (result->data != NULL) {
-		sqlite3_free_table(result->data);
-	}
-
-	/* free the struct */
-	free(result);
-
-	/* done */
-	return 0;
-}
-
 /* get results from the database */
 static sql_result *db_get(char* sql,...)
 {
@@ -186,6 +110,108 @@ static int db_insert(char* name, char* value)
 
 	/* do it */
 	return sqlite3_exec(db, sql, NULL, 0, &error_msg);
+}
+
+/* connect to the database */
+int db_connect()
+{
+	int c;
+	char* f;
+	char* xdh;
+	char fl[PATH_MAX];
+	error_msg = NULL;
+
+	f = getenv("HOME");
+	xdh = getenv("XDG_DATA_HOME");
+
+	/* use XDG data directory for storing the database */
+	if (!xdh || !xdh[0]) {
+		sprintf(fl,"%s/.local/share/nodau",f);
+	}else{
+		sprintf(fl,"%s/nodau",xdh);
+	}
+
+	dir_create(fl);
+
+	strcat(fl,"/nodau.db");
+
+	/* connect */
+	c = sqlite3_open_v2(fl, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+
+	/* check for an error */
+	if (c)
+		return 1;
+
+	c = db_check();
+
+	/* check for an error */
+	if (c)
+		return 1;
+
+	/* import from old database file */
+	if (!config_read("import_old_db","false")) {
+		sqlite3 *odb;
+		int i;
+		sql_result *res = db_result_alloc();
+		sprintf(fl,"%s/.nodau",f);
+		i = sqlite3_open_v2(fl, &odb, SQLITE_OPEN_READWRITE, NULL);
+		if (!i) {
+			sqlite3_get_table(odb, "SELECT * FROM nodau", &res->data, &res->num_rows, &res->num_cols, &error_msg);
+			if (!error_msg) {
+				if (res->num_rows) {
+					puts("Importing from old database\n");
+					for (i=0; i<res->num_rows; i++) {
+						db_insert(res->data[OCOLUMN(i,COL_NAME)],res->data[OCOLUMN(i,COL_TEXT)]);
+					}
+				}
+				db_result_free(res);
+			}
+		}
+		config_write("import_old_db","false");
+	}
+
+	/* check the table exists and return */
+	return c;
+}
+
+/* create a result struct */
+sql_result *db_result_alloc()
+{
+	/* malloc space */
+	sql_result *res = malloc(sizeof(sql_result));
+
+	/* null means error and return */
+	if (res == NULL) {
+		fprintf(stderr,"allocation failure\n");
+		return NULL;
+	}
+
+	/* set some default values */
+	res->num_cols = 0;
+	res->num_rows = 0;
+	res->data = NULL;
+
+	/* return the struct */
+	return res;
+}
+
+/* free a result struct */
+int db_result_free(sql_result *result)
+{
+	/* if null do nothing */
+	if (result == NULL)
+		return 1;
+
+	/* if there's data free it */
+	if (result->data != NULL) {
+		sqlite3_free_table(result->data);
+	}
+
+	/* free the struct */
+	free(result);
+
+	/* done */
+	return 0;
 }
 
 /* update an existing note */
@@ -344,6 +370,8 @@ void db_del(char* search)
 	/* try a name search */
 	sql_result *result;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
+
+	/* TODO: request passphrase before deleting encrypted notes? */
 
 	/* if we got something, delete it */
 	if (result->num_rows) {

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /* mmm unix */
 #include <unistd.h>
@@ -73,5 +74,11 @@ extern char* crypt_key;
 char* crypt_get_key(void);
 char* note_encrypt(char* data, char* key);
 char* note_decrypt(char* data, char* key);
+
+/* defined in config.c */
+void config_load(void);
+void config_save(void);
+char* config_read(char* name, char* value);
+char* config_write(char* name, char* value);
 
 #endif

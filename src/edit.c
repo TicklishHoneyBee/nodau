@@ -208,14 +208,18 @@ int edit_ext(char* editor, char* name, char* date, char* data)
 /* edit a note */
 void edit(char* name, char* date, char* data)
 {
-	char* ed = getenv("EDITOR");
+	char* ed;
 	char* pt = getenv("PATH");
 	char editor[1024];
 	char* p;
 	struct stat st;
 
+	ed = config_read("external_editor",NULL);
+	if (!ed)
+		ed = getenv("EDITOR");
+
 	/* no editor or no path, use builtin */
-	if (!ed || !pt) {
+	if (config_read("force_builtin_editor","true") || !ed || !pt) {
 		edit_builtin(name,date,data);
 		return;
 	}

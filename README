@@ -7,8 +7,8 @@ nodau is a simple console based note taking program, it allows you to
  easily create, edit, and view notes, and search them by name or date
 
 DEPENDENCIES:
-nodau requires glibc, ncurses, and sqlite. It may work with other C
- libraries, but this has not been tested.
+nodau requires glibc, ncurses, openssl, and sqlite. It may work with
+ other C libraries, but this has not been tested.
 
 INSTALL:
 If you're reading this then you've already unpacked the tarball,
@@ -27,9 +27,20 @@ OPTIONS:
  help            print this message
  list [search]   list notes, accepts optional search term
  new <name>      create new note, name must be unique
+ encrypt <name>  encrypt a new or existing note
+ decrypt <name>  decrypt an encrypted note
  edit <name>     open an existing note for editing
  show <name>     display an existing note
  del <search>    accepts name or search term
+
+CONFIG:
+The nodau config file is located at $XDG_CONFIG_HOME/nodau/nodau.conf
+ which is typically ~/.config/nodau/nodau.conf
+The following config settings are currently in use:
+	SETTING			VALUES
+   external_editor       name of a text editor executable (vim,nano,etc)
+   force_builtin_editor  true or false
+   import_old_db         true or false
 
 SEARCH TERM:
  search terms with spaces do not need to be inside "quotes"
