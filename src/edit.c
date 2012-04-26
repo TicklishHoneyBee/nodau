@@ -210,8 +210,8 @@ void edit(char* name, char* date, char* data)
 {
 	char* ed;
 	char* pt = getenv("PATH");
-	char editor[1024];
-	char* p;
+	char editor[PATH_MAX];
+	char* p = NULL;
 	struct stat st;
 
 	ed = config_read("external_editor",NULL);
@@ -219,20 +219,29 @@ void edit(char* name, char* date, char* data)
 		ed = getenv("EDITOR");
 
 	/* no editor or no path, use builtin */
-	if (config_read("force_builtin_editor","true") || !ed || !pt) {
+	if (config_read("force_builtin_editor","true") || !ed || (ed[0] != '/' && !pt)) {
 		edit_builtin(name,date,data);
 		return;
 	}
 
 	/* find the executable */
-	p = strtok(pt,":");
-	while (p) {
-		p = strtok(NULL,":");
-		sprintf(editor,"%s/%s",p,ed);
-		stat(editor,&st);
+	if (ed[0] == '/') {
+		stat(ed,&st);
 		/* check it exists */
-		if (S_ISREG(st.st_mode))
-			break;
+		if (S_ISREG(st.st_mode)) {
+			p = ed;
+			strcpy(editor,ed);
+		}
+	}else{
+		p = strtok(pt,":");
+		while (p) {
+			p = strtok(NULL,":");
+			sprintf(editor,"%s/%s",p,ed);
+			stat(editor,&st);
+			/* check it exists */
+			if (S_ISREG(st.st_mode))
+				break;
+		}
 	}
 
 	/* no executable, or fails to run, use builtin */
