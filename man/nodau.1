@@ -62,10 +62,24 @@ edit notes, simply edit the file as usual, nodau will save the
 note to it's database when you exit the editor. If EDITOR is not
 set the nodau builtin editor will be used.
 .br
-The current editor accepts standard printable characters, enter,
+Use of the builtin editor can be forced by setting
+`force_builtin_editor = true' in the nodau config file.
+Alternatively, the external_editor config setting can be set to
+use a specific editor regardless of the EDITOR environment
+variable value. `force_builtin_editor = true' takes precedence
+over EDITOR and external_editor settings.
+.br
+The builtin editor accepts standard printable characters, enter,
 and backspace. There is no support for moving the cursor with
 the arrow keys or mouse. To exit the editor and save the note,
 create a new line with only a dot (.) on it, or press escape.
+.SS "ENCRYPTION:"
+.IP
+Encrypting a note will apply DES encryption to the note using a
+passphrase which is requested from the user during the process.
+The passphrase is then required to decrypt, edit, or read the
+note. Decrypting a note will restore the note as plain text, and
+the passphrase will no longer be required for access.
 .PP
 .SH AUTHOR
 This manual page was modified by Lisa Milne <lisa@ltmnet.com> from

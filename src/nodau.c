@@ -20,39 +20,25 @@
 #include "nodau.h"
 
 /* print help and usage */
-static void print_help(char* appname)
+static void usage()
 {
-	printf("usage: %s <option> [data]\n",appname);
-	puts("simple console notetaking\n\n"
-	   "OPTIONS:\n"
-	   " help            print this message\n"
-	   " list [search]   list notes, accepts optional search term\n"
-	   " new <name>      create new note, name must be unique\n"
-	   " encrypt <name>  encrypt a new or existing note\n"
-	   " decrypt <name>  decrypt an encrypted note\n"
-	   " edit <name>     open an existing note for editing\n"
-	   " show <name>     display an existing note\n"
-	   " del <search>    accepts name or search term\n");
-	puts("SEARCH TERM:\n"
-	   " Search terms with spaces do not need to be inside \"quotes\"\n"
-	   " <name>          name of a note, list will search for names\n"
-	   "  similar to the term, del will delete only an exact match\n"
-	   " t@<datestring>  matches notes created at a given date/time\n"
-	   " t-<datestring>  matches notes created before a given date/time\n"
-	   " t+<datestring>  matches notes created after a given date/time\n");
-	puts( "DATE STRING:\n"
-	   " datestring can be made of any typical date format such as:\n"
-	   " dd/mm/yy\n"
-	   " dd, mm, yyyy hh:mm\n");
-	puts( "EDITING:\n"
-	   " By default nodau will use the EDITOR environment variable to\n"
-	   " edit notes, simply edit the file as usual, nodau will save the\n"
-	   " note to it's database when you exit the editor. If EDITOR is not\n"
-	   " set though the nodau builtin editor will be used.\n");
-	puts(" The current editor accepts standard printable characters, enter,\n"
-	   " and backspace. There is no support for moving the cursor with the\n"
-	   " arrow keys or mouse. To exit the editor and save the note, create\n"
-	   " a new line with only a dot (.) on it, or press escape.\n\n");
+	printf(
+		"%s %s - simple console notetaking program\n\n"
+		"USAGE: %s <OPTION> [DATA]\n\n"
+		"OPTIONS:\n"
+		" help            print this message\n"
+		" list [search]   list notes, accepts optional search term\n"
+		" new <name>      create new note, name must be unique\n"
+		" encrypt <name>  encrypt a new or existing note\n"
+		" decrypt <name>  decrypt an encrypted note\n"
+		" edit <name>     open an existing note for editing\n"
+		" show <name>     display an existing note\n"
+		" del <search>    accepts name or search term\n\n"
+		"See the nodau man page for more details.\n\n",
+		TARGET,
+		VERSION,
+		TARGET
+	);
 
 }
 
@@ -101,7 +87,7 @@ int main(int argc, char** argv)
 	char* args;
 	/* no option, print usage */
 	if (argc < 2) {
-		print_help(argv[0]);
+		usage();
 		return 0;
 	}
 
@@ -123,7 +109,7 @@ int main(int argc, char** argv)
 	}else{
 		/* if null argument print usage */
 		if (args == NULL || argc <3) {
-			print_help(argv[0]);
+			usage();
 		/* if creating a new note */
 		}else if (strcmp(argv[1],"new") == 0) {
 			db_new(args);
@@ -144,7 +130,7 @@ int main(int argc, char** argv)
 			db_del(args);
 		/* unknown option, print usage */
 		}else{
-			print_help(argv[0]);
+			usage();
 		}
 	}
 
