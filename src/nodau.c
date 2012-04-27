@@ -106,9 +106,6 @@ int main(int argc, char** argv)
 	/* if listing notes */
 	if (strcmp(argv[1],"list") == 0) {
 		db_list(args);
-	/* help text */
-	}else if (strcmp(argv[1],"help") == 0) {
-		usage();
 	}else{
 		/* if null argument print usage */
 		if (args == NULL || argc <3) {
