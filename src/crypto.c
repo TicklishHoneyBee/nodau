@@ -22,7 +22,7 @@
 
 char* crypt_key = NULL;
 
-static char* md5(const void *content, ssize_t len) {
+static char* md5(const void *content, int len) {
 	EVP_MD_CTX mdctx;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	unsigned int md_len;
@@ -36,7 +36,7 @@ static char* md5(const void *content, ssize_t len) {
 	EVP_MD_CTX_cleanup(&mdctx);
 
 	/* turn the hash into a hex string */
-	r[0] = '\0';
+	r[0] = 0;
 	for (i=0; i<md_len; i++) {
 		sprintf(tmp,"%02X",md_value[i]);
 		strcat(r,tmp);
@@ -76,7 +76,7 @@ char* crypt_get_key()
 	if (i < 0) {
 		crypt_key = NULL;
 	}else if (crypt_key[i-1] == '\n') {
-		crypt_key[i-1] = '\0';
+		crypt_key[i-1] = 0;
 	}
 
 	printf("\n");
@@ -191,7 +191,7 @@ char* note_decrypt(char* data, char* key)
 	l = *((int*)d);
 	d += 4;
 	memcpy(m,d,32);
-	m[32] = '\0';
+	m[32] = 0;
 	d += 32;
 
 	r = alloca(l);
