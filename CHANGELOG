@@ -19,6 +19,7 @@ CHANGES:
 0.3
 	- use an external editor for editing using the EDITOR
 	 environment variable
+	- move database location to comply with XDG standard
 	- rewritten Makefiles
 	- add support for encrypted notes
 	- add a config file

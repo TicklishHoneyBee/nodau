@@ -59,10 +59,10 @@ static char* get_args(int argc, char** argv)
 		return NULL;
 
 	/* add spaces to the argument length */
-	l += (i-1);
+	l += i;
 
 	/* create space for the argument */
-	args = (char*)malloc(sizeof(char)*(l));
+	args = malloc(l);
 	/* if null throw an error */
 	if (args == NULL) {
 		fprintf(stderr,"an error occured in argument compilation\n");
