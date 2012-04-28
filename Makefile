@@ -48,6 +48,7 @@ install: $(TARGET)
 
 uninstall:
 	rm -f $(BINDIR)/$(TARGET)
+	rm -f $(MANDIR)/$(TARGET).1
 
 fresh: clean all
 
