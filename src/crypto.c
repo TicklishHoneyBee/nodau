@@ -35,8 +35,8 @@ char* crypt_get_key()
 	fflush(stdout);
 
 	/* Don't echo the password to the console
-	 * this is essentially getpass() - which we don't use because
-	 * it's deprecated */
+	 * these next few lines are essentially getpass() - which we
+	 * don't use because it's deprecated */
 	if (tcgetattr (fileno (stdin), &old) != 0)
 		return NULL;
 
