@@ -22,6 +22,29 @@
 
 char* crypt_key = NULL;
 
+static char* md5(const void *content, ssize_t len) {
+	EVP_MD_CTX mdctx;
+	unsigned char md_value[EVP_MAX_MD_SIZE];
+	unsigned int md_len;
+	int i;
+	static char r[33];
+	char tmp[5];
+
+	EVP_DigestInit(&mdctx, EVP_md5());
+	EVP_DigestUpdate(&mdctx, content, (size_t) len);
+	EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
+	EVP_MD_CTX_cleanup(&mdctx);
+
+	/* turn the hash into a hex string */
+	r[0] = '\0';
+	for (i=0; i<md_len; i++) {
+		sprintf(tmp,"%02X",md_value[i]);
+		strcat(r,tmp);
+	}
+
+	return r;
+}
+
 /* get the encryption key, either from the user, or from crypt_key */
 char* crypt_get_key()
 {
@@ -107,33 +130,46 @@ char* b64_decode(char* str)
 	return buff;
 }
 
-/* TODO: use hashing or something to check for a correctly decrypted string */
-
 /* encrypt a string using a key - DES */
 char* note_encrypt(char* data, char* key)
 {
 	char* r;
 	char* d;
+	char* m;
 	int n = 0;
 	int l = strlen(data);
 	DES_cblock k;
 	DES_key_schedule schedule;
 
-	d = alloca(l+4);
+	d = alloca(l+36);
 
 	l += 4;
-	r = alloca(l+4);
+	r = alloca(l+36);
+
+	m = md5(data,l);
 
 	memcpy(k, key, 8);
 	DES_set_odd_parity(&k);
 	DES_set_key_checked(&k, &schedule);
 
-	DES_cfb64_encrypt((unsigned char *)data, (unsigned char *)r, l+4, &schedule, &k, &n, DES_ENCRYPT);
+	DES_cfb64_encrypt(
+		(unsigned char *)data,
+		(unsigned char *)r,
+		l+4,
+		&schedule,
+		&k,
+		&n,
+		DES_ENCRYPT
+	);
 
+	/* here we store the length of the encrypted data,
+	 * the md5 hash of the raw string
+	 * and the encrypted data */
 	memcpy(d,&l,4);
-	memcpy(d+4,r,l);
+	memcpy(d+4,m,32);
+	memcpy(d+36,r,l);
 
-	return b64_encode((unsigned char *)d,l+4);
+	return b64_encode((unsigned char *)d,l+36);
 }
 
 /* decrypt a string using a key - DES */
@@ -141,6 +177,8 @@ char* note_decrypt(char* data, char* key)
 {
 	char* r;
 	char* d;
+	char m[33];
+	char* c;
 	int n = 0;
 	int l;
 	DES_cblock k;
@@ -148,8 +186,13 @@ char* note_decrypt(char* data, char* key)
 
 	d = b64_decode(data);
 
+	/* extract the length of the encrypted data, and the decrypted
+	 * string's md5 hash */
 	l = *((int*)d);
 	d += 4;
+	memcpy(m,d,32);
+	m[32] = '\0';
+	d += 32;
 
 	r = alloca(l);
 
@@ -157,10 +200,27 @@ char* note_decrypt(char* data, char* key)
 	DES_set_odd_parity(&k);
 	DES_set_key_checked(&k, &schedule);
 
-	DES_cfb64_encrypt((unsigned char *)d, (unsigned char *)r, l, &schedule, &k, &n, DES_DECRYPT);
+	DES_cfb64_encrypt(
+		(unsigned char *)d,
+		(unsigned char *)r,
+		l,
+		&schedule,
+		&k,
+		&n,
+		DES_DECRYPT
+	);
 
 	memcpy(data, r, l);
 	data[l] = 0;
+
+	/* get a md5 hash of the decrypted data, if it doesn't match the
+	 * original then the passphrase was wrong */
+	c = md5(data,l);
+
+	if (strcmp(m,c)) {
+		fprintf(stderr,"Incorrect passphrase\n");
+		return NULL;
+	}
 
 	return data;
 }

@@ -316,6 +316,8 @@ void db_edit(char* search)
 	if (!strcmp(crypt,"true")) {
 		crypt = crypt_get_key();
 		text = note_decrypt(text,crypt);
+		if (!text)
+			return;
 	}
 
 	/* edit the note */
@@ -353,6 +355,8 @@ void db_show(char* search)
 	if (!strcmp(crypt,"true")) {
 		crypt = crypt_get_key();
 		text = note_decrypt(text,crypt);
+		if (!text)
+			return;
 	}
 
 	/* display the note */
@@ -499,6 +503,8 @@ void db_decrypt(char* search)
 			char* t;
 			crypt = crypt_get_key();
 			t = note_decrypt(text,crypt);
+			if (!t)
+				return;
 			free(crypt_key);
 			crypt_key = NULL;
 			db_update(search,t);
