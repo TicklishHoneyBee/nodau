@@ -18,31 +18,45 @@
 ************************************************************************/
 
 #include "nodau.h"
+#include <termios.h>
 
 char* crypt_key = NULL;
 
 /* get the encryption key, either from the user, or from crypt_key */
 char* crypt_get_key()
 {
-	int i;
-	char c;
-	static char buff[256];
+	struct termios old;
+	struct termios new;
+	size_t i;
 	if (crypt_key)
 		return crypt_key;
 
 	printf("Passphrase: ");
 	fflush(stdout);
 
-	/* TODO: do this without echoing */
-	for (i=0; i<255 && (c = fgetc(stdin)) != '\n'; i++) {
-		buff[i] = c;
+	/* Don't echo the password to the console
+	 * this is essentially getpass() - which we don't use because
+	 * it's deprecated */
+	if (tcgetattr (fileno (stdin), &old) != 0)
+		return NULL;
+
+	new = old;
+	new.c_lflag &= ~ECHO;
+
+	if (tcsetattr (fileno(stdin), TCSAFLUSH, &new) != 0)
+		return NULL;
+
+	i = getline(&crypt_key, &i, stdin);
+
+	(void)tcsetattr(fileno(stdin), TCSAFLUSH, &old);
+
+	if (i < 0) {
+		crypt_key = NULL;
+	}else if (crypt_key[i-1] == '\n') {
+		crypt_key[i-1] = '\0';
 	}
-	buff[i] = 0;
 
-	if (!i)
-		return crypt_get_key();
-
-	crypt_key = strdup(buff);
+	printf("\n");
 
 	return crypt_key;
 }
