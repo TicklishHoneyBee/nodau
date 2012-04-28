@@ -7,7 +7,7 @@ nodau is a simple console based note taking program, it allows you to
  easily create, edit, and view notes, and search them by name or date
 
 DEPENDENCIES:
-nodau requires glibc, ncurses, openssl, and sqlite. It may work with
+nodau requires glibc, ncurses, openssl, and sqlite3. It may work with
  other C libraries, but this has not been tested.
 
 INSTALL:
