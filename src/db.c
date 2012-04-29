@@ -375,7 +375,10 @@ void db_del(char* search)
 	sql_result *result;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
 
-	/* TODO: request passphrase before deleting encrypted notes? */
+	/* TODO: request passphrase before deleting encrypted notes?
+	 * File can be deleted without the passphrase anyway,
+	 * or the db can be edited with sqlite3 shell, so is there a
+	 * point to protecting from deletion? */
 
 	/* if we got something, delete it */
 	if (result->num_rows) {

@@ -7,7 +7,7 @@ MANDIR ?= $(PREFIX)/share/man/man1
 SRCDIR=src
 
 TARGET=nodau
-VERSION=0.3
+VERSION=0.3rc1
 
 CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\"
 CLIBS ?= -lsqlite3 -lncurses -lcrypto
