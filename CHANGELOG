@@ -23,3 +23,4 @@ CHANGES:
 	- rewritten Makefiles
 	- add support for encrypted notes
 	- add a config file
+	- add GPL exception for linking with OpenSSL

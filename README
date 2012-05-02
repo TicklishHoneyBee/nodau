@@ -63,6 +63,18 @@ EDITING:
 
 LICENSE:
 nodau is licensed under the GPLv3, there's a copy of it in LICENSE
+ Take note of the special exception given, for linking nodau's GPL
+ licensed code with the OpenSSL library:
+
+* In addition, as a special exception, the copyright holder (Lisa Milne)
+* gives permission to link the code of this release of nodau with the
+* OpenSSL project's "OpenSSL" library (or with modified versions of it
+* that use the same license as the "OpenSSL" library), and distribute
+* the linked executables. You must obey the GNU General Public License
+* in all respects for all of the code used other than "OpenSSL". If you
+* modify this file, you may extend this exception to your version of the
+* file, but you are not obligated to do so. If you do not wish to do so,
+* delete this exception statement from your version.
 
 DEVELOPMENT:
 I might do more to it, if so I'll let everyone know through
