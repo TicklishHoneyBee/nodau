@@ -9,8 +9,8 @@ SRCDIR=src
 TARGET=nodau
 VERSION=0.3rc1
 
-CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\"
-CLIBS ?= -lsqlite3 -lncurses -lcrypto
+NODAU_CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\" $(CFLAGS)
+NODAU_CLIBS ?= -lsqlite3 -lncurses -lcrypto $(CLIBS)
 
 OBJS=$(SRCDIR)/nodau.o $(SRCDIR)/db.o $(SRCDIR)/lib.o $(SRCDIR)/edit.o $(SRCDIR)/crypto.o $(SRCDIR)/config.o
 DISTFILES=man $(SRCDIR) Makefile* CHANGELOG LICENSE README
@@ -20,7 +20,7 @@ all: default
 default: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(CLIBS)
+	$(CC) -o $(TARGET) $(OBJS) $(NODAU_CLIBS)
 
 dist-base:
 	mkdir -p $(TARGET)-$(VERSION)
@@ -53,6 +53,6 @@ uninstall:
 fresh: clean all
 
 $(SRCDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(NODAU_CFLAGS) -o $@ -c $<
 
 .PHONY: all default distclean dist dist-base dist-bz2 dist-gz clean fresh install uninstall
