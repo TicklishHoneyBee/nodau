@@ -82,20 +82,23 @@ note. Decrypting a note will restore the note as plain text, and
 the passphrase will no longer be required for access.
 .SS "CONFIGURATION FILE:"
 .IP
-The nodau config file is located at $XDG_CONFIG_HOME/nodau/nodau.conf
+The nodau config file is located at
+$XDG_CONFIG_HOME/nodau/nodau.conf
 which is typically ~/.config/nodau/nodau.conf.
 
 The following config settings are currently in use:
 
 SETTING                    VALUES
 .br
-external_editor            name of a text editor executable (vim,nano,etc)
+external_editor            name of a text editor executable (vim,
+nano,etc)
 .br
 force_builtin_editor       true or false
 .br
 import_old_db              true or false
 
-If import_old_db value is true or not set, nodau will import notes from the 0.2.x database to the 0.3.x database.
+If import_old_db value is true or not set, nodau will import notes
+from the 0.2.x database to the 0.3.x database.
 .PP
 .SH AUTHOR
 This manual page was modified by Lisa Milne <lisa@ltmnet.com> from

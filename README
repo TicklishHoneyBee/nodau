@@ -42,7 +42,8 @@ The following config settings are currently in use:
    force_builtin_editor  true or false
    import_old_db         true or false
 
-If import_old_db value is true or not set, nodau will import notes from the 0.2.x database to the 0.3.x database.
+If import_old_db value is true or not set, nodau will import notes from
+the 0.2.x database to the 0.3.x database.
 
 SEARCH TERM:
  search terms with spaces do not need to be inside "quotes"
