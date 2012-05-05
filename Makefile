@@ -11,6 +11,7 @@ VERSION=0.3rc1
 
 NODAU_CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\" $(CFLAGS)
 NODAU_CLIBS ?= -lsqlite3 -lncurses -lcrypto $(CLIBS)
+NODAU_LDFLAGS ?= $(LDFLAGS)
 
 OBJS=$(SRCDIR)/nodau.o $(SRCDIR)/db.o $(SRCDIR)/lib.o $(SRCDIR)/edit.o $(SRCDIR)/crypto.o $(SRCDIR)/config.o
 DISTFILES=man $(SRCDIR) Makefile* CHANGELOG LICENSE README
@@ -20,7 +21,7 @@ all: default
 default: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(NODAU_CLIBS)
+	$(CC) $(NODAU_LDFLAGS) -o $(TARGET) $(OBJS) $(NODAU_CLIBS)
 
 dist-base:
 	mkdir -p $(TARGET)-$(VERSION)
