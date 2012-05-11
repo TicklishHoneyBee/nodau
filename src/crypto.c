@@ -196,8 +196,8 @@ char* note_decrypt(char* data, char* key)
 
 	d = b64_decode(data);
 
-	/* extract the length of the encrypted data, and the decrypted
-	 * string's md5 hash */
+	/* extract the length of the encrypted data,
+	 * and the decrypted string's md5 hash */
 	l = *((int*)d);
 	d += 4;
 	memcpy(m,d,32);
@@ -223,8 +223,8 @@ char* note_decrypt(char* data, char* key)
 	memcpy(data, r, l);
 	data[l] = 0;
 
-	/* get a md5 hash of the decrypted data, if it doesn't match the
-	 * original then the passphrase was wrong */
+	/* get a md5 hash of the decrypted data, if it doesn't match
+	 * the original then the passphrase was wrong */
 	c = md5(data,l);
 
 	if (strcmp(m,c)) {

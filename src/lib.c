@@ -87,7 +87,7 @@ void create_datemask()
 int dir_create(char* p)
 {
 	mode_t process_mask = umask(0);
-	mode_t mode = S_IRWXU | S_IRWXG | S_IRWXO;
+	mode_t mode = S_IRWXU;
         char *q, *r = NULL, *path = NULL, *up = NULL;
         int ret = 1;
         if (!strcmp(p, ".") || !strcmp(p, "/")) {
