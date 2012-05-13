@@ -99,8 +99,15 @@ static sql_result *db_get(char* sql,...)
 	if (result == NULL)
 		return NULL;
 
+	error_msg = NULL;
+
 	/* run the query, store the results in the result struct */
 	sqlite3_get_table(db, dtmp, &result->data, &result->num_rows, &result->num_cols, &error_msg);
+
+	if (error_msg) {
+		fprintf(stderr,"%s\n",error_msg);
+		return NULL;
+	}
 
 	/* return the struct */
 	return result;
@@ -213,7 +220,7 @@ int db_result_free(sql_result *result)
 		return 1;
 
 	/* if there's data free it */
-	if (result->data != NULL) {
+	if (result->num_cols && result->num_rows && result->data) {
 		sqlite3_free_table(result->data);
 	}
 
@@ -244,58 +251,57 @@ int db_update(char* name, char* value)
 /* list notes according to search criteria */
 void db_list(char* search)
 {
-	sql_result *result;
+	sql_result *res;
 	int i;
 	char* pref = "match";
 
 	/* if search is null, list all */
 	if (search == NULL) {
 		pref = "note";
-		result = db_get("SELECT * FROM nodau");
+		res = db_get("SELECT * FROM nodau");
 
 		/* nothing there */
-		if (result->num_rows == 0) {
+		if (res->num_rows == 0) {
 			printf("No notes to list\n");
-			db_result_free(result);
+			db_result_free(res);
 			return;
 		}
 	}else{
 		/* first try a name search */
-		result = db_get("SELECT * FROM nodau WHERE name LIKE '%%%s%%'",search);
+		res = db_get("SELECT * FROM nodau WHERE name LIKE '%%%s%%'",search);
 
 		/* if there's nothing then try a time search */
-		if (result->num_rows == 0) {
+		if (res->num_rows == 0) {
 			unsigned int idate;
-			db_result_free(result);
+			db_result_free(res);
 			/* at time */
 			if (strncmp(search,"t@",2) == 0) {
 				idate = db_getstamp(search+2);
-				result = db_get("SELECT * FROM nodau WHERE date = %u", idate);
+				res = db_get("SELECT * FROM nodau WHERE date = %u", idate);
 			/* after time */
 			}else if (strncmp(search,"t+",2) == 0) {
 				idate = db_getstamp(search+2);
-				result = db_get("SELECT * FROM nodau WHERE date > %u", idate);
+				res = db_get("SELECT * FROM nodau WHERE date > %u", idate);
 			/* before time */
 			}else if (strncmp(search,"t-",2) == 0) {
 				idate = db_getstamp(search+2);
-				result = db_get("SELECT * FROM nodau WHERE date < %u", idate);
+				res = db_get("SELECT * FROM nodau WHERE date < %u", idate);
 			}
 		}
 		/* nothing there */
-		if (result->num_rows == 0) {
+		if (!res || !res->num_rows || !res->num_cols) {
 			printf("No notes match '%s'\n",search);
-			db_result_free(result);
 			return;
 		}
 	}
 
 	/* print the list */
-	for (i=0; i<result->num_rows; i++) {
-		printf("%s %d: %s\n",pref,i+1,result->data[COLUMN(i,COL_NAME)]);
+	for (i=0; i<res->num_rows; i++) {
+		printf("%s %d: %s\n",pref,i+1,res->data[COLUMN(i,COL_NAME)]);
 	}
 
 	/* free the result */
-	db_result_free(result);
+	db_result_free(res);
 }
 
 /* open an existing note */
