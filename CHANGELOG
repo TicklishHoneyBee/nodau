@@ -31,3 +31,7 @@ CHANGES:
 	 Bonaccorso <carnil <at> debian.org>
 	- updates to man page and README file to document configuration
 	 settings by Ryan MacNish <ryan <at> nisshh.com>
+0.3rc3
+	- only give user write permission when creating config/data
+	 directories
+	- prevent segfault when list'ing with no matches
