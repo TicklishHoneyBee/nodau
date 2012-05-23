@@ -30,6 +30,8 @@
 #include <stdarg.h>
 /* so that getdate() works */
 #define _XOPEN_SOURCE 500
+/* so that asprintf works */
+#define _GNU_SOURCE
 #include <time.h>
 
 #include "nodau.h"
@@ -135,7 +137,7 @@ int db_connect()
 	int c;
 	char* f;
 	char* xdh;
-	char fl[PATH_MAX];
+	char* fl;
 	error_msg = NULL;
 
 	f = getenv("HOME");
@@ -143,17 +145,20 @@ int db_connect()
 
 	/* use XDG data directory for storing the database */
 	if (!xdh || !xdh[0]) {
-		sprintf(fl,"%s/.local/share/nodau",f);
+		asprintf(&fl,"%s/.local/share/nodau",f);
 	}else{
-		sprintf(fl,"%s/nodau",xdh);
+		asprintf(&fl,"%s/nodau",xdh);
 	}
 
 	dir_create(fl);
 
-	strcat(fl,"/nodau.db");
+	asprintf(&xdh,"%s/nodau.db",fl);
+	free(fl);
+	fl = xdh;
 
 	/* connect */
 	c = sqlite3_open_v2(fl, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+	free(fl);
 
 	/* check for an error */
 	if (c)
@@ -460,13 +465,11 @@ void db_encrypt(char* search)
 
 	/* there's already a note with that name */
 	if (result->num_rows) {
-		char* date;
 		char* name;
 		char* text;
 		char* crypt;
 
 		/* get the data */
-		date = db_gettime(result->data[COLUMN(0,COL_DATE)]);
 		name = result->data[COLUMN(0,COL_NAME)];
 		text = result->data[COLUMN(0,COL_TEXT)];
 		crypt = result->data[COLUMN(0,COL_CRYPT)];
@@ -475,7 +478,7 @@ void db_encrypt(char* search)
 		if (!strcmp(crypt,"false")) {
 			crypt = crypt_get_key();
 			db_result_free(result);
-			db_update(search,text);
+			db_update(name,text);
 		}else{
 			printf("Note '%s' is already encrypted\n",search);
 			db_result_free(result);
