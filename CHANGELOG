@@ -35,3 +35,6 @@ CHANGES:
 	- only give user write permission when creating config/data
 	 directories
 	- prevent segfault when list'ing with no matches
+0.3rc4
+	- remove dependency on PATH_MAX to hopefully improve GNU Hurd
+	 compatability
