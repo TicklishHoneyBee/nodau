@@ -27,6 +27,8 @@
 * delete this exception statement from your version.
 ************************************************************************/
 
+/* so that asprintf works */
+#define _GNU_SOURCE
 #include "nodau.h"
 
 typedef struct config_s {
@@ -68,23 +70,28 @@ static FILE *config_file(char* mode)
 {
 	char* f;
 	char* xch;
-	char fl[PATH_MAX];
+	char* fl;
+	FILE *r;
 
 	f = getenv("HOME");
 	xch = getenv("XDG_CONFIG_HOME");
 
 	/* use XDG config directory */
 	if (!xch || !xch[0]) {
-		sprintf(fl,"%s/.config/nodau",f);
+		asprintf(&fl,"%s/.config/nodau",f);
 	}else{
-		sprintf(fl,"%s/nodau",xch);
+		asprintf(&fl,"%s/nodau",xch);
 	}
 
 	dir_create(fl);
 
 	strcat(fl,"/nodau.conf");
 
-	return fopen(fl,mode);
+	r = fopen(fl,mode);
+
+	free(fl);
+
+	return r;
 }
 
 /* load configuration */

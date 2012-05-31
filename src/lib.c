@@ -27,17 +27,19 @@
 * delete this exception statement from your version.
 ************************************************************************/
 
+/* so that asprintf works */
+#define _GNU_SOURCE
 #include "nodau.h"
 
 /* create a temporary datemask file and set DATEMSK so getdate() works */
 void create_datemask()
 {
 	FILE *dm;
-	char dmfn[PATH_MAX];
+	char* dmfn;
 	/* get the users home directory */
 	char* home = getenv("HOME");
 	/* create the filename */
-	sprintf(dmfn,"%s/.datemask",home);
+	asprintf(&dmfn,"%s/.datemask",home);
 
 	/* try to open the file */
 	dm = fopen(dmfn,"r");
@@ -82,6 +84,8 @@ void create_datemask()
 
 	/* set the DATEMSK environment variable */
 	setenv("DATEMSK",dmfn,1);
+
+	free(dmfn);
 }
 
 int dir_create(char* p)

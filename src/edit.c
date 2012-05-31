@@ -27,6 +27,8 @@
 * delete this exception statement from your version.
 ************************************************************************/
 
+/* so that asprintf works */
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <ncurses.h>
 #include <ctype.h>
@@ -220,7 +222,7 @@ void edit(char* name, char* date, char* data)
 {
 	char* ed;
 	char* pt = getenv("PATH");
-	char editor[PATH_MAX];
+	char* editor;
 	char* p = NULL;
 	struct stat st;
 
@@ -240,17 +242,19 @@ void edit(char* name, char* date, char* data)
 		/* check it exists */
 		if (S_ISREG(st.st_mode)) {
 			p = ed;
-			strcpy(editor,ed);
+			editor = strdup(ed);
 		}
 	}else{
 		p = strtok(pt,":");
 		while (p) {
 			p = strtok(NULL,":");
-			sprintf(editor,"%s/%s",p,ed);
+			asprintf(&editor,"%s/%s",p,ed);
 			stat(editor,&st);
 			/* check it exists */
 			if (S_ISREG(st.st_mode))
 				break;
+
+			free(editor);
 		}
 	}
 
