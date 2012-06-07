@@ -442,15 +442,17 @@ void db_new(char* search)
 	sql_result *result;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
 
-	/* there's already a note with that name, so error and return */
-	if (result->num_rows) {
-		printf("There is already a note called '%s'\n",search);
-		db_result_free(result);
-		return;
-	}
+	if (result) {
+		/* there's already a note with that name, so error and return */
+		if (result->num_rows) {
+			printf("There is already a note called '%s'\n",search);
+			db_result_free(result);
+			return;
+		}
 
-	/* free the search result */
-	db_result_free(result);
+		/* free the search result */
+		db_result_free(result);
+	}
 
 	/* create the new entry */
 	db_insert(search,"new entry");
