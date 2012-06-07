@@ -78,6 +78,11 @@ static int db_check()
 {
 	sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS nodau(name VARCHAR(255), date INTEGER UNSIGNED, text TEXT, encrypted BOOLEAN DEFAULT 'false')", NULL, 0, &error_msg);
 
+	if (error_msg) {
+		fprintf(stderr,"%s\n",error_msg);
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -106,10 +111,10 @@ static sql_result *db_get(char* sql,...)
 	/* run the query, store the results in the result struct */
 	sqlite3_get_table(db, dtmp, &result->data, &result->num_rows, &result->num_cols, &error_msg);
 
-	if (error_msg) {
-		fprintf(stderr,"%s\n",error_msg);
+	/* return if there's an error message, but don't print it as
+	 * that's handled elsewhere and we don't want to print it twice */
+	if (error_msg)
 		return NULL;
-	}
 
 	/* return the struct */
 	return result;
@@ -175,7 +180,7 @@ int db_connect()
 		sqlite3 *odb;
 		int i;
 		sql_result *res = db_result_alloc();
-		sprintf(fl,"%s/.nodau",f);
+		asprintf(&fl,"%s/.nodau",f);
 		i = sqlite3_open_v2(fl, &odb, SQLITE_OPEN_READWRITE, NULL);
 		if (!i) {
 			sqlite3_get_table(odb, "SELECT * FROM nodau", &res->data, &res->num_rows, &res->num_cols, &error_msg);
@@ -190,6 +195,7 @@ int db_connect()
 			}
 		}
 		config_write("import_old_db","false");
+		free(fl);
 	}
 
 	/* check the table exists and return */
