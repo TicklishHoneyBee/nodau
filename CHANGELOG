@@ -41,3 +41,6 @@ CHANGES:
 0.3rc5
 	- remove dependency on PATH_MAX to hopefully improve GNU Hurd
 	 compatability - do it properly!
+0.3rc6
+	- fix a segv in the database code
+	- make encryption work again (when did this get broken?)
