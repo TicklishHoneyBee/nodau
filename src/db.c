@@ -469,13 +469,13 @@ void db_encrypt(char* search)
 {
 	/* search by name */
 	sql_result *result;
+	char* crypt;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
 
 	/* there's already a note with that name */
 	if (result->num_rows) {
 		char* name;
 		char* text;
-		char* crypt;
 
 		/* get the data */
 		name = result->data[COLUMN(0,COL_NAME)];
@@ -485,12 +485,11 @@ void db_encrypt(char* search)
 		/* encrypt it if it's not already */
 		if (!strcmp(crypt,"false")) {
 			crypt = crypt_get_key();
-			db_result_free(result);
 			db_update(name,text);
 		}else{
 			printf("Note '%s' is already encrypted\n",search);
-			db_result_free(result);
 		}
+		db_result_free(result);
 		return;
 	}
 
@@ -503,6 +502,7 @@ void db_encrypt(char* search)
 	if (error_msg)
 		printf("%s\n",error_msg);
 
+	crypt = crypt_get_key();
 	/* open for editing */
 	db_edit(search);
 }
