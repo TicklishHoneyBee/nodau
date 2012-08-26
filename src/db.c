@@ -517,14 +517,10 @@ void db_decrypt(char* search)
 
 	/* found the note */
 	if (result->num_rows) {
-		char* date;
-		char* name;
 		char* text;
 		char* crypt;
 
 		/* get the data */
-		date = db_gettime(result->data[COLUMN(0,COL_DATE)]);
-		name = result->data[COLUMN(0,COL_NAME)];
 		text = result->data[COLUMN(0,COL_TEXT)];
 		crypt = result->data[COLUMN(0,COL_CRYPT)];
 
