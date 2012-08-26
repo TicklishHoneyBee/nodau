@@ -45,7 +45,7 @@ CHANGES:
 	- fix a segv in the database code
 	- make encryption work again (when did this get broken?)
 0.3rc7
-	- allow passing CPPFLAGS from by Salvatore Bonaccorso
+	- allow passing CPPFLAGS by Salvatore Bonaccorso
 	 <carnil <at> debian.org>
 0.3.0
 	- no changes, it seems stable
