@@ -78,9 +78,11 @@ static FILE *config_file(char* mode)
 
 	/* use XDG config directory */
 	if (!xch || !xch[0]) {
-		asprintf(&fl,"%s/.config/nodau",f);
+		if (asprintf(&fl,"%s/.config/nodau",f) < 0)
+			return NULL;
 	}else{
-		asprintf(&fl,"%s/nodau",xch);
+		if (asprintf(&fl,"%s/nodau",xch) < 0)
+			return NULL;
 	}
 
 	dir_create(fl);

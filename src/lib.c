@@ -39,7 +39,8 @@ void create_datemask()
 	/* get the users home directory */
 	char* home = getenv("HOME");
 	/* create the filename */
-	asprintf(&dmfn,"%s/.datemask",home);
+	if (asprintf(&dmfn,"%s/.datemask",home) < 0)
+		return;
 
 	/* try to open the file */
 	dm = fopen(dmfn,"r");

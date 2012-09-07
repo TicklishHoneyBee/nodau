@@ -248,7 +248,10 @@ void edit(char* name, char* date, char* data)
 		p = strtok(pt,":");
 		while (p) {
 			p = strtok(NULL,":");
-			asprintf(&editor,"%s/%s",p,ed);
+
+			if (asprintf(&editor,"%s/%s",p,ed) < 0)
+				continue;
+
 			stat(editor,&st);
 			/* check it exists */
 			if (S_ISREG(st.st_mode))

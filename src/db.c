@@ -150,14 +150,18 @@ int db_connect()
 
 	/* use XDG data directory for storing the database */
 	if (!xdh || !xdh[0]) {
-		asprintf(&fl,"%s/.local/share/nodau",f);
+		if (asprintf(&fl,"%s/.local/share/nodau",f) < 0)
+			return 1;
 	}else{
-		asprintf(&fl,"%s/nodau",xdh);
+		if (asprintf(&fl,"%s/nodau",xdh) < 0)
+			return 1;
 	}
 
 	dir_create(fl);
 
-	asprintf(&xdh,"%s/nodau.db",fl);
+	if (asprintf(&xdh,"%s/nodau.db",fl) < 0)
+		return 1;
+
 	free(fl);
 	fl = xdh;
 
@@ -180,7 +184,10 @@ int db_connect()
 		sqlite3 *odb;
 		int i;
 		sql_result *res = db_result_alloc();
-		asprintf(&fl,"%s/.nodau",f);
+
+		if (asprintf(&fl,"%s/.nodau",f) < 0)
+			return 1;
+
 		i = sqlite3_open_v2(fl, &odb, SQLITE_OPEN_READWRITE, NULL);
 		if (!i) {
 			sqlite3_get_table(odb, "SELECT * FROM nodau", &res->data, &res->num_rows, &res->num_cols, &error_msg);
