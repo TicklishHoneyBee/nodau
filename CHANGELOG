@@ -49,3 +49,5 @@ CHANGES:
 	 <carnil <at> debian.org>
 0.3.0
 	- no changes, it seems stable
+0.3.1
+	- fix various compiler warnings
