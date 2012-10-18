@@ -1,6 +1,8 @@
 #ifndef _NODAU_H
 #define _NODAU_H 1
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

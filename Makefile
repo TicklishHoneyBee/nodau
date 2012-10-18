@@ -9,7 +9,7 @@ SRCDIR=src
 TARGET=nodau
 VERSION=0.3.1
 
-NODAU_CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\" $(CFLAGS)
+NODAU_CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\" -Iinc/ -I. $(CFLAGS)
 NODAU_CPPFLAGS ?= $(CPPFLAGS)
 NODAU_CLIBS ?= -lsqlite3 -lncurses -lcrypto $(CLIBS)
 NODAU_LDFLAGS ?= $(LDFLAGS)
@@ -54,7 +54,7 @@ uninstall:
 
 fresh: clean all
 
-$(SRCDIR)/%.o: $(SRCDIR)/%.c
+$(SRCDIR)/%.o: $(SRCDIR)/%.c inc/nodau.h config.h
 	$(CC) $(NODAU_CPPFLAGS) $(NODAU_CFLAGS) -o $@ -c $<
 
 .PHONY: all default distclean dist dist-base dist-bz2 dist-gz clean fresh install uninstall
