@@ -335,8 +335,12 @@ void db_edit(char* search)
 
 	/* nothing there */
 	if (result->num_rows == 0) {
-		printf("No notes match '%s'\n",search);
 		db_result_free(result);
+		if (config_read("edit_autocreate","false")) {
+			printf("No notes match '%s'\n",search);
+		}else{
+			db_new(search);
+		}
 		return;
 	}
 

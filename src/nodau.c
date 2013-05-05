@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 		if (args == NULL || argc <3) {
 			usage();
 		/* if creating a new note */
-		}else if (strcmp(argv[1],"new") == 0) {
+		}else if (strcmp(argv[1],"new") == 0 || strcmp(argv[1],"create") == 0) {
 			db_new(args);
 		/* if opening/editing an existing note */
 		}else if (strcmp(argv[1],"open") == 0 || strcmp(argv[1],"edit") == 0) {
