@@ -7,7 +7,7 @@ MANDIR ?= $(PREFIX)/share/man/man1
 SRCDIR=src
 
 TARGET=nodau
-VERSION=0.3.2
+VERSION=0.3.3
 
 NODAU_CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\" -Iinc/ -I. $(CFLAGS)
 NODAU_CPPFLAGS ?= $(CPPFLAGS)
