@@ -58,3 +58,6 @@ CHANGES:
 0.3.3
 	- some documentation improvements by Salvatore Bonaccorso
 	 <carnil <at> debian.org>
+0.3.4
+	- fixes to Makefile by Salvatore Bonaccorso
+	 <carnil <at> debian.org>
