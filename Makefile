@@ -5,6 +5,7 @@ BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man/man1
 
 SRCDIR=src
+INCDIR=inc
 
 TARGET=nodau
 VERSION=0.3.3
@@ -15,7 +16,7 @@ NODAU_CLIBS ?= -lsqlite3 -lncurses -lcrypto $(CLIBS)
 NODAU_LDFLAGS ?= $(LDFLAGS)
 
 OBJS=$(SRCDIR)/nodau.o $(SRCDIR)/db.o $(SRCDIR)/lib.o $(SRCDIR)/edit.o $(SRCDIR)/crypto.o $(SRCDIR)/config.o
-DISTFILES=man $(SRCDIR) Makefile* CHANGELOG LICENSE README
+DISTFILES=man $(SRCDIR) $(INCDIR) config.h Makefile* CHANGELOG LICENSE README
 
 all: default
 
