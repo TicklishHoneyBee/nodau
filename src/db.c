@@ -252,18 +252,25 @@ int db_result_free(sql_result *result)
 /* update an existing note */
 int db_update(char* name, char* value)
 {
-	char sql[512];
+	char* sql;
+	int r;
 	/* create the sql statement using the name/text for this note
 	 * if it's meant to be encrypted, then crypt_key will be set */
 	if (crypt_key) {
 		value = note_encrypt(value,crypt_key);
-		sprintf(sql, "UPDATE nodau set text='%s' , encrypted='true' WHERE name='%s'", value, name);
+		r = asprintf(&sql, "UPDATE nodau set text='%s' , encrypted='true' WHERE name='%s'", value, name);
+		free(value);
+		if (r < 0)
+			return 1;
 	}else{
-		sprintf(sql, "UPDATE nodau set text='%s' , encrypted='false' WHERE name='%s'", value, name);
+		if (asprintf(&sql, "UPDATE nodau set text='%s' , encrypted='false' WHERE name='%s'", value, name) < 0)
+			return 1;
 	}
 
 	/* do it */
-	return sqlite3_exec(db, sql, NULL, 0, &error_msg);
+	r = sqlite3_exec(db, sql, NULL, 0, &error_msg);
+	free(sql);
+	return r;
 }
 
 /* list notes according to search criteria */
