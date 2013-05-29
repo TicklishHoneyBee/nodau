@@ -149,33 +149,39 @@ static void edit_builtin(char* name, char* date, char* data)
 /* edit with an external editor */
 int edit_ext(char* editor, char* name, char* date, char* data)
 {
-	FILE *f;
+	int fd;
 	int st;
 	int sz;
 	char* b;
 	char* l;
 	char buff[512];
 	pid_t pid;
-	sprintf(buff,"/tmp/nodau.%d",(int)time(NULL));
+
+	strcpy(buff,"/tmp/nodau.XXXXXX");
+	fd = mkstemp(buff);
+
+	if (fd < 0)
+		return 1;
 
 	pid = fork();
 
 	if (pid < 0) {
 		return 1;
 	}else if (pid) {
+		close(fd);
 		waitpid(pid,&st,0);
 		if (!st) {
-			if ((f = fopen(buff,"r")) == NULL)
+			if ((fd = open(buff,O_RDONLY)) < 0)
 				return 1;
 			/* find the file length */
-			fseek(f,0,SEEK_END);
-			sz = ftell(f);
-			fseek(f,0,SEEK_SET);
+			sz = lseek(fd,0,SEEK_END);
+			lseek(fd,0,SEEK_SET);
 			if (sz) {
 				/* load the note into memory */
 				b = alloca(sz+1);
-				fread(b,1,sz,f);
-				fclose(f);
+				if (sz != read(fd,b,sz))
+					return 1;
+				close(fd);
 				/* delete the file */
 				remove(buff);
 				b[sz] = 0;
@@ -194,19 +200,20 @@ int edit_ext(char* editor, char* name, char* date, char* data)
 		return st;
 	}
 
-	if ((f = fopen(buff,"w+")) == NULL)
-		exit(1);
+	sz = strlen(name)+strlen(date)+strlen(data)+50;
+	b = alloca(sz);
 
 	/* insert data into file */
-	fprintf(
-		f,
+	sz = sprintf(
+		b,
 		"%s (%s)\nText above this line is ignored\n-----\n%s",
 		name,
 		date,
 		data
 	);
-	fflush(f);
-	fclose(f);
+	write(fd,b,sz);
+	fsync(fd);
+	close(fd);
 
 	st = execl(editor,editor,buff,(char*)NULL);
 
