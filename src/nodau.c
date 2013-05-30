@@ -126,6 +126,13 @@ int main(int argc, char** argv)
 		/* if opening/editing an existing note */
 		}else if (strcmp(argv[1],"open") == 0 || strcmp(argv[1],"edit") == 0) {
 			db_edit(args);
+		/* append to a note if data is on stdin */
+		}else if (strcmp(argv[1],"append") == 0) {
+			if (isatty(STDIN_FILENO)) {
+				db_edit(args);
+			}else{
+				db_append(args);
+			}
 		/* encrypt a new or existing note */
 		}else if (strcmp(argv[1],"encrypt") == 0) {
 			db_encrypt(args);

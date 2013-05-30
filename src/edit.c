@@ -59,7 +59,7 @@ static void draw(char* data)
 }
 
 /* edit a note with the builtin editor */
-static void edit_builtin(char* name, char* date, char* data)
+static int edit_builtin(char* name, char* date, char* data)
 {
 	char buffer[256];
 	int bl;
@@ -140,14 +140,17 @@ static void edit_builtin(char* name, char* date, char* data)
 	endwin();
 
 	/* save the note */
-	db_update(name,buffer);
+	if (!db_update(name,buffer))
+		return 1;
 
 	/* let the user know */
 	printf("%s saved\n",name);
+
+	return 0;
 }
 
 /* edit with an external editor */
-int edit_ext(char* editor, char* name, char* date, char* data)
+static int edit_ext(char* editor, char* name, char* date, char* data)
 {
 	int fd;
 	int st;
@@ -190,7 +193,8 @@ int edit_ext(char* editor, char* name, char* date, char* data)
 				if (l) {
 					/* save the note */
 					l += 6;
-					db_update(name,l);
+					if (db_update(name,l))
+						return 1;
 
 					/* let the user know */
 					printf("%s saved\n",name);
@@ -224,24 +228,85 @@ int edit_ext(char* editor, char* name, char* date, char* data)
 	return 1;
 }
 
+/* edit a note using data piped from stdin */
+int edit_stdin(char* name, char* date, char* data, int append)
+{
+	char buff[1024];
+	int l;
+	int s;
+	int r;
+	char* d;
+	char* b;
+
+	/* get the initial buffer size */
+	l = strlen(data);
+	if (l < 512) {
+		s = 512;
+	}else{
+		s = l*2;
+	}
+
+	d = malloc(s);
+	if (!d)
+		return 1;
+
+	/* for append mode copy the old data to the start of the buffer */
+	if (append && strcmp(data,"new entry")) {
+		strcpy(d,data);
+	}else{
+		l = 0;
+	}
+
+	/* read it in */
+	while ((r = read(STDIN_FILENO,buff,1024)) > 0) {
+		/* extend the buffer as necessary */
+		if (l+r+1 > s) {
+			s = l+r+512;
+			b = realloc(d,s);
+			if (!b)
+				return 1;
+			d = b;
+		}
+		memcpy(d+l,buff,r);
+		l += r;
+	}
+
+	/* make sure there's room for the nul byte */
+	if (l+1 > s) {
+		s = l+1;
+		b = realloc(d,s);
+		if (!b)
+			return 1;
+		d = b;
+	}
+
+	d[l] = 0;
+
+	/* done */
+	return db_update(name,d);
+}
+
 /* edit a note */
-void edit(char* name, char* date, char* data)
+int edit(char* name, char* date, char* data)
 {
 	char* ed;
-	char* pt = getenv("PATH");
+	char* pt;
 	char* editor;
 	char* p = NULL;
 	struct stat st;
+
+	if (!isatty(STDIN_FILENO))
+		return edit_stdin(name,date,data,0);
+
+	pt = getenv("PATH");
 
 	ed = config_read("external_editor",NULL);
 	if (!ed)
 		ed = getenv("EDITOR");
 
 	/* no editor or no path, use builtin */
-	if (config_read("force_builtin_editor","true") || !ed || (ed[0] != '/' && !pt)) {
-		edit_builtin(name,date,data);
-		return;
-	}
+	if (config_read("force_builtin_editor","true") || !ed || (ed[0] != '/' && !pt))
+		return edit_builtin(name,date,data);
 
 	/* find the executable */
 	if (ed[0] == '/') {
@@ -269,8 +334,8 @@ void edit(char* name, char* date, char* data)
 	}
 
 	/* no executable, or fails to run, use builtin */
-	if (!p || edit_ext(editor,name,date,data)) {
-		edit_builtin(name,date,data);
-		return;
-	}
+	if (!p || edit_ext(editor,name,date,data))
+		return edit_builtin(name,date,data);
+
+	return 0;
 }

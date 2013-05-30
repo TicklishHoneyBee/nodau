@@ -51,13 +51,14 @@ char *error_msg;
 /* defined in db.c */
 int db_connect(void);
 int db_update(char* name, char* value);
-void db_list(char* search);
-void db_edit(char* search);
-void db_show(char* search);
-void db_del(char* search);
-void db_new(char* search);
-void db_encrypt(char* search);
-void db_decrypt(char* search);
+int db_list(char* search);
+int db_edit(char* search);
+int db_append(char* search);
+int db_show(char* search);
+int db_del(char* search);
+int db_new(char* search);
+int db_encrypt(char* search);
+int db_decrypt(char* search);
 sql_result *db_result_alloc(void);
 int db_result_free(sql_result *result);
 
@@ -69,7 +70,8 @@ void create_datemask(void);
 int dir_create(char* p);
 
 /* defined in edit.c */
-void edit(char* name, char* date, char* data);
+int edit_stdin(char* name, char* date, char* data, int append);
+int edit(char* name, char* date, char* data);
 
 /* defined in crypto.c */
 extern char* crypt_key;
