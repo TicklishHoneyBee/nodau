@@ -54,7 +54,7 @@ CHANGES:
 0.3.2
 	- add 'create' as a synonym for 'new'
 	- make 'edit' auto-create a note if it does not exist and
-	 edit_create is true in config
+	 edit_autocreate is true in config
 0.3.3
 	- some documentation improvements by Salvatore Bonaccorso
 	 <carnil <at> debian.org>
