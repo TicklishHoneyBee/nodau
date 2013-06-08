@@ -8,7 +8,7 @@ SRCDIR=src
 INCDIR=inc
 
 TARGET=nodau
-VERSION=0.3.4
+VERSION=0.3.5
 
 NODAU_CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\" -Iinc/ -I. $(CFLAGS)
 NODAU_CPPFLAGS ?= $(CPPFLAGS)
