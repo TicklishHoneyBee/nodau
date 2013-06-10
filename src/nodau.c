@@ -42,6 +42,7 @@ static void usage()
 		" encrypt <name>  encrypt a new or existing note\n"
 		" decrypt <name>  decrypt an encrypted note\n"
 		" edit <name>     open an existing note for editing\n"
+		" append <name>   when piping data from stdin, append to an existing note\n"
 		" show <name>     display an existing note\n"
 		" del <search>    accepts name or search term\n\n"
 		"See the nodau man page for more details.\n\n",
