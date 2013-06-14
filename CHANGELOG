@@ -67,3 +67,7 @@ CHANGES:
 	- stop stack corruption on db_update with long notes
 	- changes to temporary file handling to fix security
 	 vulnerability - https://github.com/darkrose/nodau/issues/17
+0.3.6
+	- add append option to help text by Salvatore Bonaccorso
+	 <carnil <at> debian.org>
+	- fix compiler warning in usage()

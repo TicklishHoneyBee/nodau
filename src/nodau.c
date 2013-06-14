@@ -40,15 +40,17 @@ static void usage()
 		" list [search]   list notes, accepts optional search term\n"
 		" new <name>      create new note, name must be unique\n"
 		" encrypt <name>  encrypt a new or existing note\n"
-		" decrypt <name>  decrypt an encrypted note\n"
+		" decrypt <name>  decrypt an encrypted note\n",
+		TARGET,
+		VERSION,
+		TARGET
+	);
+	printf(
 		" edit <name>     open an existing note for editing\n"
 		" append <name>   when piping data from stdin, append to an existing note\n"
 		" show <name>     display an existing note\n"
 		" del <search>    accepts name or search term\n\n"
-		"See the nodau man page for more details.\n\n",
-		TARGET,
-		VERSION,
-		TARGET
+		"See the nodau man page for more details.\n\n"
 	);
 
 }
