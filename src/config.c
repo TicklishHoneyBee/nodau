@@ -78,6 +78,8 @@ static FILE *config_file(char* mode)
 
 	/* use XDG config directory */
 	if (!xch || !xch[0]) {
+		if (!f || !f[0])
+			return NULL;
 		if (asprintf(&fl,"%s/.config/nodau",f) < 0)
 			return NULL;
 	}else{
