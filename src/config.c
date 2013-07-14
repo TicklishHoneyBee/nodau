@@ -89,11 +89,12 @@ static FILE *config_file(char* mode)
 
 	dir_create(fl);
 
-	strcat(fl,"/nodau.conf");
-
-	r = fopen(fl,mode);
-
+	f = alloca(strlen(fl)+12);
+	strcpy(f,fl);
 	free(fl);
+	strcat(f,"/nodau.conf");
+
+	r = fopen(f,mode);
 
 	return r;
 }
