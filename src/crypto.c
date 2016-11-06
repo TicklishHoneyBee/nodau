@@ -30,21 +30,48 @@
 #include "nodau.h"
 #include <termios.h>
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#include <string.h>
+#include <openssl/engine.h>
+
+static void *OPENSSL_zalloc(size_t num)
+{
+	void *ret = OPENSSL_malloc(num);
+
+	if (ret != NULL)
+		memset(ret, 0, num);
+	return ret;
+}
+
+EVP_MD_CTX *EVP_MD_CTX_new(void)
+{
+	return OPENSSL_zalloc(sizeof(EVP_MD_CTX));
+}
+
+void EVP_MD_CTX_free(EVP_MD_CTX *ctx)
+{
+	EVP_MD_CTX_cleanup(ctx);
+	OPENSSL_free(ctx);
+}
+
+#endif
+
 char* crypt_key = NULL;
 
 static char* md5(const void *content, int len)
 {
-	EVP_MD_CTX mdctx;
+	EVP_MD_CTX *mdctx;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	unsigned int md_len;
 	int i;
 	static char r[33];
 	char tmp[5];
 
-	EVP_DigestInit(&mdctx, EVP_md5());
-	EVP_DigestUpdate(&mdctx, content, (size_t) len);
-	EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
-	EVP_MD_CTX_cleanup(&mdctx);
+	mdctx = EVP_MD_CTX_new();
+	EVP_DigestInit(mdctx, EVP_md5());
+	EVP_DigestUpdate(mdctx, content, (size_t) len);
+	EVP_DigestFinal_ex(mdctx, md_value, &md_len);
+	EVP_MD_CTX_free(mdctx);
 
 	/* turn the hash into a hex string */
 	r[0] = 0;
