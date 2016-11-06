@@ -32,7 +32,8 @@
 
 char* crypt_key = NULL;
 
-static char* md5(const void *content, int len) {
+static char* md5(const void *content, int len)
+{
 	EVP_MD_CTX mdctx;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	unsigned int md_len;

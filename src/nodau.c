@@ -78,7 +78,7 @@ static char* get_args(int argc, char** argv)
 	args = malloc(l);
 	/* if null throw an error */
 	if (args == NULL) {
-		fprintf(stderr,"an error occured in argument compilation\n");
+		fprintf(stderr,"an error occurred in argument compilation\n");
 		return NULL;
 	}
 

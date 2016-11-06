@@ -253,7 +253,7 @@ int db_result_free(sql_result *result)
 int db_update(char* name, char* value)
 {
 	char* sql;
-	int r;
+	int r = 0;
 	/* create the sql statement using the name/text for this note
 	 * if it's meant to be encrypted, then crypt_key will be set */
 	if (crypt_key) {
@@ -538,7 +538,7 @@ int db_encrypt(char* search)
 	/* search by name */
 	sql_result *result;
 	char* crypt;
-	int r;
+	int r = 0;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
 
 	/* there's already a note with that name */

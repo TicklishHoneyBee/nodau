@@ -68,7 +68,7 @@ static int edit_builtin(char* name, char* date, char* data)
 	/* character storage */
 	int plch = 0;
 	int lch = 0;
-	int ch;
+	int ch = 0;
 
 	/* set the local data */
 	bname = name;
@@ -215,7 +215,9 @@ static int edit_ext(char* editor, char* name, char* date, char* data)
 		date,
 		data
 	);
-	write(fd,b,sz);
+	if (write(fd,b,sz) != sz) {
+		exit(1);
+	}
 	fsync(fd);
 	close(fd);
 
