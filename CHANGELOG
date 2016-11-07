@@ -74,3 +74,8 @@ CHANGES:
 0.3.7
 	- prevent segv when env is empty
 	- prevent segv in config file creation
+0.3.8
+	- add support for openssl 1.1 (by Salvatore Bonaccorso
+	 <carnil <at> debian.org>)
+	- fix typo in an error message
+	- a bunch of small fixes to remove some compiler warnings
