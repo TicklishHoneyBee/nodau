@@ -45,11 +45,10 @@ enum {
 	COL_CRYPT
 };
 
-sqlite3 *db;
-char *error_msg;
-
 /* defined in db.c */
 int db_connect(void);
+void db_close(void);
+const char* db_err(void);
 int db_update(char* name, char* value);
 int db_list(char* search);
 int db_edit(char* search);

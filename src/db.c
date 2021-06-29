@@ -36,6 +36,14 @@
 
 #include "nodau.h"
 
+static struct {
+	sqlite3 *db;
+	char *error_msg;
+} db_data = {
+	NULL,
+	NULL
+};
+
 /* convert a db string to a date string */
 static char* db_gettime(char* d)
 {
@@ -76,10 +84,11 @@ static unsigned int db_getstamp(char* d)
 /* create the nodau table if it doesn't exist */
 static int db_check()
 {
-	sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS nodau(name VARCHAR(255), date INTEGER UNSIGNED, text TEXT, encrypted BOOLEAN DEFAULT 'false')", NULL, 0, &error_msg);
+	db_data.error_msg = NULL;
+	sqlite3_exec(db_data.db, "CREATE TABLE IF NOT EXISTS nodau(name VARCHAR(255), date INTEGER UNSIGNED, text TEXT, encrypted BOOLEAN DEFAULT 'false')", NULL, 0, &db_data.error_msg);
 
-	if (error_msg) {
-		fprintf(stderr,"%s\n",error_msg);
+	if (db_data.error_msg) {
+		fprintf(stderr,"%s\n",db_data.error_msg);
 		return 1;
 	}
 
@@ -106,14 +115,14 @@ static sql_result *db_get(char* sql,...)
 	if (result == NULL)
 		return NULL;
 
-	error_msg = NULL;
+	db_data.error_msg = NULL;
 
 	/* run the query, store the results in the result struct */
-	sqlite3_get_table(db, dtmp, &result->data, &result->num_rows, &result->num_cols, &error_msg);
+	sqlite3_get_table(db_data.db, dtmp, &result->data, &result->num_rows, &result->num_cols, &db_data.error_msg);
 
 	/* return if there's an error message, but don't print it as
 	 * that's handled elsewhere and we don't want to print it twice */
-	if (error_msg)
+	if (db_data.error_msg)
 		return NULL;
 
 	/* return the struct */
@@ -133,7 +142,7 @@ static int db_insert(char* name, char* value)
 	sprintf(sql, "INSERT INTO nodau values('%s','%u','%s','false')", name, date, value);
 
 	/* do it */
-	return sqlite3_exec(db, sql, NULL, 0, &error_msg);
+	return sqlite3_exec(db_data.db, sql, NULL, 0, &db_data.error_msg);
 }
 
 /* connect to the database */
@@ -143,7 +152,7 @@ int db_connect()
 	char* f;
 	char* xdh;
 	char* fl;
-	error_msg = NULL;
+	db_data.error_msg = NULL;
 
 	f = getenv("HOME");
 	xdh = getenv("XDG_DATA_HOME");
@@ -166,7 +175,7 @@ int db_connect()
 	fl = xdh;
 
 	/* connect */
-	c = sqlite3_open_v2(fl, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+	c = sqlite3_open_v2(fl, &db_data.db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
 	free(fl);
 
 	/* check for an error */
@@ -190,8 +199,8 @@ int db_connect()
 
 		i = sqlite3_open_v2(fl, &odb, SQLITE_OPEN_READWRITE, NULL);
 		if (!i) {
-			sqlite3_get_table(odb, "SELECT * FROM nodau", &res->data, &res->num_rows, &res->num_cols, &error_msg);
-			if (!error_msg) {
+			sqlite3_get_table(odb, "SELECT * FROM nodau", &res->data, &res->num_rows, &res->num_cols, &db_data.error_msg);
+			if (!db_data.error_msg) {
 				if (res->num_rows) {
 					puts("Importing from old database\n");
 					for (i=0; i<res->num_rows; i++) {
@@ -207,6 +216,24 @@ int db_connect()
 
 	/* check the table exists and return */
 	return c;
+}
+
+/* closes the database */
+void db_close()
+{
+	sqlite3_close(db_data.db);
+}
+
+const char* db_err()
+{
+	const char* m;
+
+	m = sqlite3_errmsg(db_data.db);
+
+	if (m)
+		return m;
+
+	return "Unknown Error";
 }
 
 /* create a result struct */
@@ -268,7 +295,7 @@ int db_update(char* name, char* value)
 	}
 
 	/* do it */
-	r = sqlite3_exec(db, sql, NULL, 0, &error_msg);
+	r = sqlite3_exec(db_data.db, sql, NULL, 0, &db_data.error_msg);
 	free(sql);
 	return r;
 }
@@ -276,7 +303,7 @@ int db_update(char* name, char* value)
 /* list notes according to search criteria */
 int db_list(char* search)
 {
-	sql_result *res;
+	sql_result *res = NULL;
 	int i;
 	char* pref = "match";
 
@@ -299,6 +326,7 @@ int db_list(char* search)
 		if (res->num_rows == 0) {
 			unsigned int idate;
 			db_result_free(res);
+			res = NULL;
 			/* at time */
 			if (strncmp(search,"t@",2) == 0) {
 				idate = db_getstamp(search+2);
@@ -326,7 +354,8 @@ int db_list(char* search)
 	}
 
 	/* free the result */
-	db_result_free(res);
+	if (res)
+		db_result_free(res);
 
 	return 0;
 }
@@ -495,7 +524,7 @@ int db_del(char* search)
 	}
 
 	/* run the statement */
-	sqlite3_exec(db, sql, NULL, 0, &error_msg);
+	sqlite3_exec(db_data.db, sql, NULL, 0, &db_data.error_msg);
 
 	/* free the earlier result */
 	db_result_free(result);
@@ -525,8 +554,8 @@ int db_new(char* search)
 	/* create the new entry */
 	db_insert(search,"new entry");
 
-	if (error_msg)
-		printf("%s\n",error_msg);
+	if (db_data.error_msg)
+		printf("%s\n",db_data.error_msg);
 
 	/* open for editing */
 	return db_edit(search);
@@ -568,8 +597,8 @@ int db_encrypt(char* search)
 	/* create the new entry */
 	db_insert(search,"new entry");
 
-	if (error_msg)
-		fprintf(stderr,"%s\n",error_msg);
+	if (db_data.error_msg)
+		fprintf(stderr,"%s\n",db_data.error_msg);
 
 	crypt = crypt_get_key();
 	/* open for editing */

@@ -79,3 +79,9 @@ CHANGES:
 	 <carnil <at> debian.org>)
 	- fix typo in an error message
 	- a bunch of small fixes to remove some compiler warnings
+0.3.9
+	- fix segfault when running 'nodau list' with search keyword,
+	 and there are no matches (by Omer Dagan
+	 <mr.omer.dagan <at> gmail.com>)
+	- remove variable definitions in header file that caused issues
+	 with gcc 10

@@ -108,8 +108,8 @@ int main(int argc, char** argv)
 
 	/* connect to the db or error */
 	if (db_connect()) {
-		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-		sqlite3_close(db);
+		fprintf(stderr, "Can't open database: %s\n", db_err());
+		db_close();
 		return 0;
 	}
 
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 		free(args);
 
 	/* close the database */
-	sqlite3_close(db);
+	db_close();
 
 	/* save config */
 	config_save();
