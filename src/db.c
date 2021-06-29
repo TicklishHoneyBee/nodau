@@ -298,7 +298,6 @@ int db_list(char* search)
 		/* if there's nothing then try a time search */
 		if (res->num_rows == 0) {
 			unsigned int idate;
-			db_result_free(res);
 			/* at time */
 			if (strncmp(search,"t@",2) == 0) {
 				idate = db_getstamp(search+2);
@@ -316,6 +315,7 @@ int db_list(char* search)
 		/* nothing there */
 		if (!res || !res->num_rows || !res->num_cols) {
 			printf("No notes match '%s'\n",search);
+			db_result_free(res);
 			return 0;
 		}
 	}
