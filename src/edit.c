@@ -193,7 +193,8 @@ static int edit_ext(char* editor, char* name, char* date, char* data)
 				if (l) {
 					/* save the note */
 					l += 6;
-					if (db_update(name,l))
+					int r = db_update(name,l);
+					if (r != SQLITE_DONE && r != SQLITE_OK)
 						return 1;
 
 					/* let the user know */

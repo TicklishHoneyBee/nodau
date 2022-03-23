@@ -285,18 +285,36 @@ int db_update(char* name, char* value)
 	 * if it's meant to be encrypted, then crypt_key will be set */
 	if (crypt_key) {
 		value = note_encrypt(value,crypt_key);
-		r = asprintf(&sql, "UPDATE nodau set text='%s' , encrypted='true' WHERE name='%s'", value, name);
-		free(value);
-		if (r < 0)
+		if (asprintf(&sql, "UPDATE nodau set text=?, encrypted='true' WHERE name=?") < 0)
 			return 1;
 	}else{
-		if (asprintf(&sql, "UPDATE nodau set text='%s' , encrypted='false' WHERE name='%s'", value, name) < 0)
+		if (asprintf(&sql, "UPDATE nodau set text=?, encrypted='false' WHERE name=?") < 0)
 			return 1;
 	}
 
+	sqlite3_stmt *compiled_statement;
+	r = sqlite3_prepare_v2(db_data.db, sql, -1, &compiled_statement, NULL);
+	if (r != SQLITE_OK)
+		return 1;
+
+	r= sqlite3_bind_text(compiled_statement, 1, value, -1, NULL);
+	r= sqlite3_bind_text(compiled_statement, 2, name, -1, NULL);
+	if (r != SQLITE_OK)
+		return 1;
+
 	/* do it */
-	r = sqlite3_exec(db_data.db, sql, NULL, 0, &db_data.error_msg);
+	r = sqlite3_step(compiled_statement);
+	if (r != SQLITE_DONE) {
+		fprintf(stderr, "Error #%d: %s\n", r, db_err());
+		return 1;
+	}
+	r = sqlite3_finalize(compiled_statement);
+	if (r != SQLITE_OK)
+		fprintf(stderr, "Error #%d: %s\n", r, db_err());
+
 	free(sql);
+	if (crypt_key)
+		free(value);
 	return r;
 }
 

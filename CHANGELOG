@@ -85,3 +85,6 @@ CHANGES:
 	 <mr.omer.dagan <at> gmail.com>)
 	- remove variable definitions in header file that caused issues
 	 with gcc 10
+0.3.10
+    - Move to parametetrized SQL statement allows using chars like "'"
+     in notes, and also avoid sql injection
