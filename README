@@ -24,15 +24,16 @@ USE:
 nodau <option> [data]
 
 OPTIONS:
- help            print this message
- list [search]   list notes, accepts optional search term
- new <name>      create new note, name must be unique
- encrypt <name>  encrypt a new or existing note
- decrypt <name>  decrypt an encrypted note
- edit <name>     open an existing note for editing
- append <name>   when piping data from stdin, append to an existing note
- show <name>     display an existing note
- del <search>    delete a note/notes, accepts name or search term
+ help                  print this message
+ list [search]         list notes, accepts optional search term
+ new <name>            create new note, name must be unique
+ encrypt <name>        encrypt a new or existing note
+ decrypt <name>        decrypt an encrypted note
+ edit <name>           open an existing note for editing
+ append <name>         when piping data from stdin, append to an existing note
+ show <name>           display an existing note
+ del <search>          delete a note/notes, accepts name or search term
+ rename <old> <new>    rename an existing note
 
 CONFIG:
 The nodau config file is located at $XDG_CONFIG_HOME/nodau/nodau.conf

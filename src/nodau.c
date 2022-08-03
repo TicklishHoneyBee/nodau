@@ -36,20 +36,21 @@ static void usage()
 		"%s %s - simple console notetaking program\n\n"
 		"USAGE: %s <OPTION> [DATA]\n\n"
 		"OPTIONS:\n"
-		" help            print this message\n"
-		" list [search]   list notes, accepts optional search term\n"
-		" new <name>      create new note, name must be unique\n"
-		" encrypt <name>  encrypt a new or existing note\n"
-		" decrypt <name>  decrypt an encrypted note\n",
+		" help                print this message\n"
+		" list [search]       list notes, accepts optional search term\n"
+		" new <name>          create new note, name must be unique\n"
+		" encrypt <name>      encrypt a new or existing note\n"
+		" decrypt <name>      decrypt an encrypted note\n",
 		TARGET,
 		VERSION,
 		TARGET
 	);
 	printf(
-		" edit <name>     open an existing note for editing\n"
-		" append <name>   when piping data from stdin, append to an existing note\n"
-		" show <name>     display an existing note\n"
-		" del <search>    accepts name or search term\n\n"
+		" edit <name>         open an existing note for editing\n"
+		" append <name>       when piping data from stdin, append to an existing note\n"
+		" show <name>         display an existing note\n"
+		" del <search>        accepts name or search term\n"
+		" rename <old> <new>  rename an existing note\n\n"
 		"See the nodau man page for more details.\n\n"
 	);
 
@@ -148,6 +149,9 @@ int main(int argc, char** argv)
 		/* if deleting note/s */
 		}else if (strcmp(argv[1],"del") == 0) {
 			db_del(args);
+		/* rename note */
+		}else if (strcmp(argv[1],"rename") == 0) {
+			db_rename(argv[2], argv[3]);
 		/* unknown option, print usage */
 		}else{
 			usage();

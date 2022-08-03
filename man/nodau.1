@@ -40,9 +40,14 @@ display an existing note
 .TP
 del <SEARCH>
 delete a note/notes, accepts name or search term
+.TP
+rename <OLD> <NEW>
+rename an existing note
 .SS "SEARCH TERM:"
 .IP
-search terms with spaces do not need to be inside "quotes"
+search terms with spaces do not need to be inside "quotes". One exception to this convention is 
+rename, in which speaces are used as delimiter between old name and new name. In such case use
+"quotes" in either argument to denote spaces in note's name.
 .br
 <NAME>          name of a note, list will search for names
 similar to the term, del will delete only an exact match

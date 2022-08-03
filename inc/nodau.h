@@ -55,6 +55,7 @@ int db_edit(char* search);
 int db_append(char* search);
 int db_show(char* search);
 int db_del(char* search);
+int db_rename(char* search, char* newname);
 int db_new(char* search);
 int db_encrypt(char* search);
 int db_decrypt(char* search);

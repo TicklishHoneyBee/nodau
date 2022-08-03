@@ -88,3 +88,6 @@ CHANGES:
 0.3.10
     - Move to parametetrized SQL statement allows using chars like "'"
      in notes, and also avoid sql injection
+0.3.11
+    - add 'rename' option to allow renaming of existing notes by Omer
+    Dagan <mr.omer.dagan <at> gmail.com>
