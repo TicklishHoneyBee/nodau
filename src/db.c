@@ -506,6 +506,32 @@ int db_show(char* search)
 	return 0;
 }
 
+int db_rename(char* search, char* newname)
+{
+	/* get the note by name */
+	sql_result *result;
+	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
+
+	/* nothing there */
+	if (result->num_rows == 0) {
+		printf("No notes match '%s'\n",search);
+		db_result_free(result);
+		return 0;
+	}
+
+	/* free the result */
+	db_result_free(result);
+
+	/* perform note renaming */
+	result = db_get("UPDATE nodau set name = '%s' WHERE name = '%s'", newname, search);
+
+	/* free the result */
+	db_result_free(result);
+
+	return 0;
+}
+
+
 /* delete notes */
 int db_del(char* search)
 {
