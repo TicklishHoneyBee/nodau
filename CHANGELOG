@@ -91,3 +91,6 @@ CHANGES:
 0.3.11
     - add 'rename' option to allow renaming of existing notes by Omer
     Dagan <mr.omer.dagan <at> gmail.com>
+0.3.12
+    - remove harcoded limit of note text size in function db_insert
+    by Omer Dagan <mr.omer.dagan <at> gmail.com>

@@ -133,16 +133,18 @@ static sql_result *db_get(char* sql,...)
 static int db_insert(char* name, char* value)
 {
 	/* somewhere to put the sql */
-	char sql[1024];
+	char* sql = NULL; // memory will be allocated by asprintf
 
 	/* get the current time */
 	unsigned int date = (unsigned int)time(NULL);
 
 	/* create the sql statement using the name/date/text for this note */
-	sprintf(sql, "INSERT INTO nodau values('%s','%u','%s','false')", name, date, value);
+	asprintf(&sql, "INSERT INTO nodau values('%s','%u','%s','false')", name, date, value);
 
 	/* do it */
-	return sqlite3_exec(db_data.db, sql, NULL, 0, &db_data.error_msg);
+	int ret = sqlite3_exec(db_data.db, sql, NULL, 0, &db_data.error_msg);
+	free(sql);
+	return ret;
 }
 
 /* connect to the database */
