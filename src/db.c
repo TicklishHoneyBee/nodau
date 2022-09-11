@@ -508,13 +508,26 @@ int db_show(char* search)
 
 int db_rename(char* search, char* newname)
 {
-	/* get the note by name */
+	/* make sure note exists */
 	sql_result *result;
 	result = db_get("SELECT * FROM nodau WHERE name = '%s'",search);
 
 	/* nothing there */
 	if (result->num_rows == 0) {
 		printf("No notes match '%s'\n",search);
+		db_result_free(result);
+		return 0;
+	}
+
+	/* free the result */
+	db_result_free(result);
+
+	/* make sure new note name doesn't already exist */
+	result = db_get("SELECT * FROM nodau WHERE name = '%s'", newname);
+
+	/* nothing there */
+	if (result->num_rows != 0) {
+		printf("Note with new name already exists '%s'\n", newname);
 		db_result_free(result);
 		return 0;
 	}
