@@ -151,6 +151,16 @@ int main(int argc, char** argv)
 			db_del(args);
 		/* rename note */
 		}else if (strcmp(argv[1],"rename") == 0) {
+			if (argc < 4) {
+				fprintf(stderr, "Missing arguments for 'rename'\n");
+				db_close();
+				return 0;
+			}
+			if (argc > 4) {
+				fprintf(stderr, "Too many arguments for 'rename'\n");
+				db_close();
+				return 0;
+			}
 			db_rename(argv[2], argv[3]);
 		/* unknown option, print usage */
 		}else{

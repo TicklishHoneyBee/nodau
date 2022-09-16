@@ -91,3 +91,7 @@ CHANGES:
 0.3.11
     - add 'rename' option to allow renaming of existing notes by Omer
     Dagan <mr.omer.dagan <at> gmail.com>
+0.3.12
+    - Improve 'rename' arguments validation: make sure exactly two args
+     are given, make sure the second arg (new note name) doesn't already
+     exist. by Omer Dagan <mr.omer.dagan <at> gmail.com>
