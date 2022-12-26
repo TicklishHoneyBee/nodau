@@ -1,0 +1,41 @@
+
+#bash completion script for nodau command
+
+_nodau_actions="help list new encrypt decrypt edit append show del rename"
+
+get_notes() {
+	nodau list | sed 's,note.*: ,,'
+}
+
+_nodau()
+{
+	if declare -F _init_completion > /dev/null; then
+		_init_completion || return
+	fi
+
+	local cur prev
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+	# list available actions if first argument
+	case $COMP_CWORD in
+	1)
+		COMPREPLY=($(compgen -W "${_nodau_actions}" -- ${cur}))
+		;;
+	2)
+		case "${prev}" in
+		list|new)
+			_filedir
+		;;
+		encrypt|decrypt|edit|append|show|del|rename)
+			COMPREPLY=($(compgen -W "$(get_notes)" -- ${cur}))
+		esac
+		;;
+	*)
+		_filedir
+		;;
+	esac
+}
+
+complete -F _nodau nodau
+
