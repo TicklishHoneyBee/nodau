@@ -3,12 +3,13 @@ CC ?= gcc
 PREFIX ?= /usr
 BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man/man1
+BASH_COMPLETIONDIR ?= /etc/bash_completion.d
 
 SRCDIR=src
 INCDIR=inc
 
 TARGET=nodau
-VERSION=0.3.12
+VERSION=0.3.13
 
 NODAU_CFLAGS ?= -Wall -g -pedantic -DTARGET=\"$(TARGET)\" -DVERSION=\"$(VERSION)\" -Iinc/ -I. $(CFLAGS)
 NODAU_CPPFLAGS ?= $(CPPFLAGS)
@@ -48,6 +49,7 @@ clean: distclean
 install: $(TARGET)
 	install $(TARGET) $(BINDIR)/$(TARGET)
 	-install man/$(TARGET).1 $(MANDIR)/$(TARGET).1
+	-install bash_completion.d/$(TARGET) $(BASH_COMPLETIONDIR)/$(TARGET)
 
 uninstall:
 	rm -f $(BINDIR)/$(TARGET)

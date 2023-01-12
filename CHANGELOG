@@ -95,3 +95,5 @@ CHANGES:
     - Improve 'rename' arguments validation: make sure exactly two args
      are given, make sure the second arg (new note name) doesn't already
      exist. by Omer Dagan <mr.omer.dagan <at> gmail.com>
+0.3.13
+    - Add bash completion functionality. by Omer Dagan <mr.omer.dagan <at> gmail.com>
