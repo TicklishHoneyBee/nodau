@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 		}else if (strcmp(argv[1],"show") == 0) {
 			db_show(args);
 		/* if deleting note/s */
-		}else if (strcmp(argv[1],"del") == 0) {
+		}else if (strcmp(argv[1],"del") == 0 || strcmp(argv[1],"delete") == 0) {
 			db_del(args);
 		/* rename note */
 		}else if (strcmp(argv[1],"rename") == 0) {
